@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Website</title>
+   </head>
+  <body>
+    <main>
+        <h1>All Posts:</h1>
+        <ul>
+          {% for post in posts_list %}
+              <li>User:{{post.username}} | Title:{{ post.title }} | Content: {{ post.content }} 
+                <button onclick="likePost('{{ post._id }}')">like (likes: {{ post.likes | length}})</button>
+              </li>
+          {% endfor %}
+          </ul>
+          <a href="{{ url_for('newPost') }}">
+            <button>Create a post</button></a>
+    </main>
+    <script>
+      function likePost(postId) {
+          console.log('Post ID:', postId);  // Add debugging log
+          fetch('/likePost', { //Make a POST request for un/like
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'  // Corrected header case
+              },
+              body: 'post_id=' + encodeURIComponent(postId)  // Ensure proper encoding
+          })
+          .then(response => {
+              if (!response.ok) {
+                  return response.text().then(text => { throw new Error(text) });
+              }
+              return response.text();
+          })
+          .then(data => {
+            console.log('Response from server:', data);
+            // Display the message in an alert and reload the page
+            alert('ok: ' + data);
+            return fetch('/getUpdatedPosts');
+          })
+            .then(response => response.json())
+            .then(data => {
+                updatePageContent(data);
+           // return redirect(url_for('success.html'))
+            })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('Error: ' + error.message);
+          });
+      }
+      function updatePageContent(data) {
+       
+        const postsList = document.getElementById('posts_list');
+        if (postsList) {
+            postsList.innerHTML = '';
+            data.postsList.forEach(post => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `Title: ${post.title} | Content: ${post.content}  <button onclick="likePost('${post._id}')">Like (${post.likes.length})</button>`;
+                userPostsList.appendChild(listItem);
+            });
+        } else {
+            console.error("Element with ID 'posts_list' not found.");
+        }
+    }
+      </script>
+  </body>
+</html>

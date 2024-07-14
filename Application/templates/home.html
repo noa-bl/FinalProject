@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Website</title>
+   </head>
+  <body>
+    <main>
+        <h1>Great! Please Log In</h1>
+        <form method="POST" action="{{ url_for('index') }}">
+            <input type="text" name="username" placeholder="username"><br>
+            <input type="text" name="password" placeholder="Password"><br>
+            <input type="submit" value="login"><br>
+        </form>
+        <h1>do not have an account?</h1>
+        <a href="{{ url_for('signup') }}">
+          <button>Sign Up!</button>
+        </a>
+    </main>
+  </body>
+</html>

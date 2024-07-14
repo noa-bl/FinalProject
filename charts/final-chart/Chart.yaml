@@ -1,0 +1,11 @@
+## This file contains metadata that help helm manage the charts and deployments
+
+apiVersion: v2
+name: finals-chart
+description: A Helm chart for Kubernetes
+
+type: application
+#the version of thr chart itself
+version: 0.1.0
+#the version of the application this chart deploys
+appVersion: "1.16.0"

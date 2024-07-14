@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-myapp
+  labels:
+    app: {{ include "finals-chart.name" . }}-myapp
+spec: # Specifies the desired state
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "finals-chart.name" . }}-myapp
+  template:
+    metadata:
+      labels:
+        app: {{ include "finals-chart.name" . }}-myapp
+    spec:
+      containers:
+      - name: myapp
+        image: {{ .Values.myapp.image }}
+        ports:
+        - containerPort: {{ .Values.myapp.port }}
+        env:
+        - name: MONGODB_URI
+          value: {{ .Values.myapp.environment.MONGODB_URI }}
+    #    volumes:
+     #   - name: mongo-data
+     #     emptyDir: {} # A volume that's created empty for temporary storage
+     #   - name: mongo-init
+     #     configMap:
+     #       name: mongo-initdb
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-mongo
+  labels:
+    app: {{ include "finals-chart.name" . }}-mongo
+spec: ## specifies the desired state of the objec
+  replicas: 1
+  selector: ## specifies how to identify the pods managed by the deployment, selects the pods that match the labels.
+    matchLabels:
+      app: {{ include "finals-chart.name" . }}-mongo ##used to logically group and identify resources that belong to the same application
+  template:
+    metadata: ## provides info about object, here it's to apply labels to the pods created by the deployment
+      labels:
+        app: {{ include "finals-chart.name" . }}-mongo ##This labels the pods created by the deployment. These labels need to match the selector to associate the pods with the deployment.
+    spec:
+      containers:
+      - name: mongo
+        image: {{ .Values.mongo.image }}
+        command: ["mongod", "--bind_ip_all"]
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: {{ .Values.mongo.environment.MONGO_INITDB_ROOT_USERNAME }}
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: {{ .Values.mongo.environment.MONGO_INITDB_ROOT_PASSWORD }}
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - mountPath: /data/db
+          name: mongo-data
+        - mountPath: /docker-entrypoint-initdb.d
+          name: mongo-init
+      volumes:
+        - name: mongo-data
+          emptyDir: {} ##a volume that's created empty. for temporary storage
+        - name: mongo-init
+          configMap:
+            name: mongo-initdb

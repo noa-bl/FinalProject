@@ -1,0 +1,50 @@
+##for autocaling - horizontal pod autoscaler
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-myapp-hpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "finals-chart.name" . }}
+spec:
+#specifies the target deployment for this HPA scale.
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    #name for deployment:
+    name: {{ include "finals-chart.fullname" . }}-myapp
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+        #targets a percentage of CPU utilization
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-mongo-hpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "finals-chart.name" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "finals-chart.fullname" . }}-mongo
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}

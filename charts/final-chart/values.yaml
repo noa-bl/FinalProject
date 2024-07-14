@@ -1,0 +1,42 @@
+#finals-chart/values.yaml
+
+#mongo's values
+mongo:
+  image: mongo:latest
+  hostname: Project_mongodb
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: myUserAdmin
+    MONGO_INITDB_ROOT_PASSWORD: changeme
+
+    
+## myapp's values
+myapp:
+  image: 
+    repository: noabl/flask-app
+    tag: latest
+  environment:
+    MONGODB_URI: mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
+  port: 5000
+
+## service's values
+service:
+  port: 5000
+
+## ingress - provides http/s routing to services whithin the cluster.
+ingress:
+  enabled: true #enables and generates an Ingress resource
+  annotations: #metadata to k8s resources
+    kubernetes.io/ingress.class: nginx #ingress controller
+  hosts:
+    - host: myapp.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 50
+  

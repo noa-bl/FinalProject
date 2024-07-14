@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>My Website</title>
+   </head>
+  <body>
+    <main>
+        <h1>Sign Up :* </h1>
+        <form method="POST" action="{{ url_for('signup') }}">
+            <input type="text" name="username" placeholder="username"><br>
+            <input type="text" name="password" placeholder="Password"><br>
+            <input type="submit" value="signup"><br>
+        </form>
+        <h1>have an account?</h1>
+          <a href="home.html">
+            <button>Sign In!</button>
+          </a>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,126 @@
+db.Posts.find()
+db.Users.find()
+db.Posts.deleteMany( { username: 'noaB' } )
+db.Posts.deleteMany( { username: 'huh' } )
+db.Posts.deleteMany( { username: 'what' } )
+db.Posts.deleteMany( { username: 'hhh' } )
+db.Posts.deleteMany( { username: 'Mai' } )
+db.Posts.deleteMany( { username: 'last' } )
+use Project
+db.Posts.find()
+db.Users.find()
+db.Users.deleteMany( { username: 'last' } )
+db.Users.find()
+db.Users.deleteMany( { username: 'Mai' } )
+db.Users.deleteMany( { username: 'secondNoa' } )
+db.Users.deleteMany( { username: 'noaB' } )
+db.Users.deleteMany( { username: 'huh' } )
+db.Users.deleteMany( { username: 'what' } )
+db.Users.deleteMany( { username: 'hhh' } )
+db.Posts.deleteMany()
+db.Users.find()
+use Project
+db.Users.find()
+db.Posts.find()
+db.Posts.find({ username: what })
+db.Posts.find({ username: 'what' })
+db.Posts.find(username,  'what')
+db.Posts.find(username,  what)
+db.Posts.find(username: what)
+db.Posts.find(username,'what')
+db.Posts.find(username:'what')
+db.Posts.find()
+db.Users.find()
+db.Users.find
+use Project
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+use Project
+exit
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.deleteMany( { username: '123' } )
+use Project
+exit
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+use Project
+db.Posts.deleteMany( { username: 'Noa' } )
+exit
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.find()
+use Project
+exit
+EXIT
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.find()
+use Project
+exit\
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.deleteMany( { username: 'Nםש' } )
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+use Project
+EXIT
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+use Project
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.find()
+use Project
+db.Posts.find()
+db.Posts.deleteMany( { username: '123' } )
+db.Posts.find()
+db.Users.find()
+db.Posts.find()
+use Project
+db.Posts.deleteMany( { username: 'secondNoa' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.find()
+use Project
+db.Posts.find()
+use Project
+db.Users.find()
+db.Posts.deleteMany( { username: 'Noa' } )
+use Project
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.find()
+use Project
+db.Posts.find()
+db.Posts.deleteMany( { username: 'Mai' } )
+db.Posts.deleteMany( { username: 'Noa' } )
+db.Posts.find()
+db.Users.deleteMany( { username: 'Noa' } )
+db.Posts.find()
+use Project
+db.Posts.find()
+use Project
+show dbs
+showdbs
+exit
+db.Posts.find()
+use Project
+db.Users.find()
+use Project
+db.Users.find()
+db.Users.find
+show collections
+show collection
+use Project
+show dbs

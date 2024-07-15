@@ -3,8 +3,6 @@ kind: ConfigMap
 metadata:
   name: mongo-initdb
 data:
-#Each key is a filename, and each value is the contents of the file.
-#after a | , everything is a value key.
   initdb.js: |
     // Initialization script for MongoDB
     db.createUser({
@@ -12,3 +10,44 @@ data:
       pwd: 'changeme',
       roles: [{ role: 'root', db: 'admin' }]
     });
+
+  users.js: |
+    const database = 'Project';
+    const collectionName = 'Users';
+
+    // Create a new database.
+    use(database);
+
+    // Create a new collection.
+    db.createCollection(collectionName);
+
+    const collection = db.getCollection(collectionName);
+
+    const users = [
+      {username: 'Noa', password: '1123'},
+      {username: 'Mai', password: '2123'}
+    ];
+
+    collection.insertMany(users);
+    collection.find();
+
+  posts.js: |
+    const database = 'Project';
+    const collectionName = 'Posts';
+
+    // Create a new database.
+    use(database);
+
+    // Create a new collection.
+    db.createCollection(collectionName);
+
+    const collection = db.getCollection(collectionName);
+
+    const posts = [
+      {username: 'Noa', _title: 'one', content: 'this info noa', likes: []},
+      {username: 'Mai', _title: 'one', content: 'this info mai', likes: []},
+      {username: 'Noa', _title: 'two', content: 'this info noa2', likes: []}
+    ];
+
+    collection.insertMany(posts);
+    collection.find();

@@ -14,7 +14,7 @@ myapp:
   image: 
     repository: noabl/flask-app:latest
   environment:
-    MONGODB_URI: mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
+    MONGODB_URI: mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin&tls=true
   port: 5000
 
 ## service's values

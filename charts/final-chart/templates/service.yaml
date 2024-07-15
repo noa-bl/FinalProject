@@ -22,11 +22,12 @@ metadata:
   labels:
     app: {{include "finals-chart.name" . }}-mongo
 spec:
+  type: NodePort 
   ports:
   - port: 27017
-    protocol: TCP
     targetPort: 27017
+    protocol: TCP
     nodePort: 32000
   selector:
     app: {{ include "finals-chart.name" . }}-mongo
-  type: NodePort 
+  

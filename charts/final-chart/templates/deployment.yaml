@@ -25,7 +25,7 @@ spec:
       volumes:
       - name: mongo-data
         emptyDir: {}
-      - name: mongo-init
+      - name: mongo-initdb
         configMap:
           name: mongo-initdb
 
@@ -62,11 +62,11 @@ spec:
         volumeMounts:
         - name: mongo-data
           mountPath: /data/db
-        - name: mongo-init
+        - name: mongo-initdb
           mountPath: /docker-entrypoint-initdb.d
       volumes:
       - name: mongo-data
         emptyDir: {}
-      - name: mongo-init
+      - name: mongo-initdb
         configMap:
           name: mongo-initdb

@@ -4,7 +4,7 @@ metadata:
   name: {{ include "finals-chart.fullname" . }}-myapp
   labels:
     app: {{ include "finals-chart.name" . }}-myapp
-spec: # Specifies the desired state
+spec:
   replicas: 1
   selector:
     matchLabels:
@@ -16,39 +16,41 @@ spec: # Specifies the desired state
     spec:
       containers:
       - name: myapp
-        image: {{ .Values.myapp.image }}
+        image: {{ .Values.myapp.image.repository }}
         ports:
         - containerPort: {{ .Values.myapp.port }}
         env:
         - name: MONGODB_URI
           value: {{ .Values.myapp.environment.MONGODB_URI }}
-    #    volumes:
-     #   - name: mongo-data
-     #     emptyDir: {} # A volume that's created empty for temporary storage
-     #   - name: mongo-init
-     #     configMap:
-     #       name: mongo-initdb
+      volumes:
+      - name: mongo-data
+        emptyDir: {}
+      - name: mongo-init
+        configMap:
+          name: mongo-initdb
 
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "finals-chart.fullname" . }}-mongo
   labels:
     app: {{ include "finals-chart.name" . }}-mongo
-spec: ## specifies the desired state of the objec
+spec:
   replicas: 1
-  selector: ## specifies how to identify the pods managed by the deployment, selects the pods that match the labels.
+  selector:
     matchLabels:
-      app: {{ include "finals-chart.name" . }}-mongo ##used to logically group and identify resources that belong to the same application
+      app: {{ include "finals-chart.name" . }}-mongo
   template:
-    metadata: ## provides info about object, here it's to apply labels to the pods created by the deployment
+    metadata:
       labels:
-        app: {{ include "finals-chart.name" . }}-mongo ##This labels the pods created by the deployment. These labels need to match the selector to associate the pods with the deployment.
+        app: {{ include "finals-chart.name" . }}-mongo
     spec:
       containers:
       - name: mongo
         image: {{ .Values.mongo.image }}
+        args: ["--dbpath", "/data/db"]
         command: ["mongod", "--bind_ip_all"]
         env:
         - name: MONGO_INITDB_ROOT_USERNAME
@@ -58,13 +60,13 @@ spec: ## specifies the desired state of the objec
         ports:
         - containerPort: 27017
         volumeMounts:
-        - mountPath: /data/db
-          name: mongo-data
-        - mountPath: /docker-entrypoint-initdb.d
-          name: mongo-init
-      volumes:
         - name: mongo-data
-          emptyDir: {} ##a volume that's created empty. for temporary storage
+          mountPath: /data/db
         - name: mongo-init
-          configMap:
-            name: mongo-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mongo-data
+        emptyDir: {}
+      - name: mongo-init
+        configMap:
+          name: mongo-initdb

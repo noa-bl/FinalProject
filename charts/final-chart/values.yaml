@@ -8,12 +8,11 @@ mongo:
     MONGO_INITDB_ROOT_USERNAME: myUserAdmin
     MONGO_INITDB_ROOT_PASSWORD: changeme
 
-    
+
 ## myapp's values
 myapp:
   image: 
-    repository: noabl/flask-app
-    tag: latest
+    repository: noabl/flask-app:latest
   environment:
     MONGODB_URI: mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
   port: 5000

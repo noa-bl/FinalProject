@@ -15,6 +15,21 @@ spec:
       labels:
         app: {{ include "finals-chart.name" . }}-mongo
     spec:
+      initContainers:
+      - name: init-mongo
+        image: mongo:latest
+        command:
+        - sh
+        - -c
+        - |
+          if [ "$(mongo --quiet --eval 'db.getMongo().getDBNames().indexOf("admin")')" == "-1" ]; then
+            mongosh < /docker-entrypoint-initdb.d/admin-user.js
+            mongosh < /docker-entrypoint-initdb.d/users.js
+            mongosh < /docker-entrypoint-initdb.d/posts.js
+          fi
+        volumeMounts:
+        - name: initdb-scripts
+          mountPath: /docker-entrypoint-initdb.d
       containers:
       - name: {{ include "finals-chart.name" . }}-mongo
         image: "{{ .Values.mongo.image }}"

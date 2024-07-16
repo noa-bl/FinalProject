@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-initdb-config
+data:
+  admin-user.js: |
+    db.createUser({
+      user: "myUserAdmin",
+      pwd: "changeme",
+      roles: [
+        {
+          role: "readWrite",
+          db: "admin"
+        }
+      ]
+    });
+  users.js: |
+    const database = 'Project';
+    const collectionName = 'Users';
+
+    use(database);
+    db.createCollection(collectionName);
+
+    const collection = db.getCollection(collectionName);
+
+    const users = [
+      {username: "Noa", password: '1123'},
+      {username: "Mai", password: '2123'}
+    ];
+
+    collection.insertMany(users);
+  posts.js: |
+    const database = 'Project';
+    const collectionName = 'Posts';
+
+    use(database);
+    db.createCollection(collectionName);
+
+    const collection = db.getCollection(collectionName);
+
+    const posts = [
+      {username: "Noa", _title: "one", content: "this info noa", likes: '[]'},
+      {username: "Mai", _title: "one", content: "this info mai", likes: '[]'},
+      {username: "Noa", _title: "two", content: "this info noa2", likes: '[]'}
+    ];
+
+    collection.insertMany(posts);

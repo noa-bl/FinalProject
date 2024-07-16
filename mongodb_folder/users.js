@@ -15,4 +15,3 @@ const users = [
 ];
 
 collection.insertMany(users);
-collection.find();

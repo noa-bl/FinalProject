@@ -21,6 +21,6 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin&tls=true
+      - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo

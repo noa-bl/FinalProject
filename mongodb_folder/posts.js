@@ -16,4 +16,3 @@ const posts = [
 ];
 
 collection.insertMany(posts);
-collection.find();

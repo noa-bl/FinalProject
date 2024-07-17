@@ -32,7 +32,7 @@ def index():
                 user_posts = Posts.find({'username':username}, {'title':1, 'content':1, 'likes':1 ,'_id':1})
                 user_posts_list = list(user_posts)
                 username = session['username'] 
-                return render_template('success.html', postsNum=postsNum, user_posts_list=user_posts_list, username=username)
+                return render_template('userPage.html', postsNum=postsNum, user_posts_list=user_posts_list, username=username)
                 
             else:
                 return "Failed Login"
@@ -53,7 +53,7 @@ def signup():
                 return "Username already exists"
             else:
                 Users.insert_one({'username': username, 'password': password})
-                return render_template('success.html', username=username, postsNum=0, user_posts_list=[])
+                return render_template('userPage.html', username=username, postsNum=0, user_posts_list=[])
         except Exception as e:
             return f"Error: {e}"
         
@@ -84,7 +84,7 @@ def newPost():
             user_posts_list = list(user_posts)
             username = session['username']
             app.logger.info(f"New post created for user {username} with title {title}")
-            return render_template('success.html', username=username, postsNum=postsNum, user_posts_list=user_posts_list)
+            return render_template('userPage.html', username=username, postsNum=postsNum, user_posts_list=user_posts_list)
         except Exception as e:
             app.logger.error(f"Error creating post: {e}")
             return f"Error: {e}", 500
@@ -127,7 +127,7 @@ def allPosts(methods=['GET', 'POST']):
         postsNum = Posts.count_documents()
         posts = Posts.find()
         posts_list = list(posts)
-        return render_template('success.html', postsNum=postsNum, posts_list=posts_list, username=username)
+        return render_template('userPage.html', postsNum=postsNum, posts_list=posts_list, username=username)
 
 
 @app.route('/getUpdatedPosts')

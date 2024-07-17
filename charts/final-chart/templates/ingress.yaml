@@ -17,3 +17,23 @@ spec:
             port:
               number: {{ .Values.service.port }}
   tls: []
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host:  mongo
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ include "finals-chart.fullname" . }}-myapp
+            port:
+              number: {{ .Values.service.port }}
+  tls: []

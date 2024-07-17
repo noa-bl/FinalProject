@@ -38,3 +38,51 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 50
+##jenkins
+#controller:
+ # adminPassword:  bWYsUtnnTJSiXOdm2NB6Ix
+#  installPlugins:
+ #   - kubernetes
+  #  - workflow-aggregator
+   # - git
+    #- configuration-as-code
+#  service:
+ #   type: NodePort
+  #  port: 8080
+#agent:
+ # enabled: true
+  #podTemplates:
+   # - name: default
+    #  label: jenkins-agent
+     ###   image: jenkins/inbound-agent:4.3-4
+        #  args: '${computer.jnlpmac} ${computer.name}'
+#jenkins:
+#  namespace: devops-tools
+#  image:
+#    repository: jenkins/jenkins
+#    tag: lts
+#  resources:
+#    requests:
+#      memory: "500Mi"
+#      cpu: "500m"
+#    limits:
+#      memory: "2Gi"
+#      cpu: "1"
+#  pvc:
+#    size: "8Gi"
+#    storageClassName: local-storage
+
+#  service:
+ #   type: NodePort
+#    nodePort:
+  #    http: 30000
+   #   agent: 30001
+  #controller:
+   # jenkinsUrl: http://hostforjenkins.ddns.net:30000
+  #agent:
+   # podName: default
+    #customJenkinsLabels: default
+    #resources:
+     # limits:
+      #  cpu: "1"
+       # memory: "2048Mi"

@@ -29,4 +29,3 @@ spec:
     name: mongo
   selector:
     app: {{ include "finals-chart.name" . }}-mongo
-

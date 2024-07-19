@@ -3,12 +3,12 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'git@github.com:noa-bl/FinalProject.git'
+                git branch: 'refs/heads/master', url: 'git@github.com:noa-bl/FinalProject.git', credentialsId: 'ssh-cred'
             }
         }
         stage('Build') {
             steps {
-                sh 'echo Hello Jenkins!!'
+                sh 'echo Hello Jenkins!'
             }
         }
     }

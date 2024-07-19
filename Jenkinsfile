@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'refs/heads/master', url: 'git@github.com:noa-bl/FinalProject.git', credentialsId: 'ssh-cred'
+                git branch: 'refs/heads/master', url: 'https://github.com/noa-bl/FinalProject.git', credentialsId: 'ssh-cred'
             }
         }
         stage('Build') {

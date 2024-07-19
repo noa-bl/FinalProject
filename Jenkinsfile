@@ -1,9 +1,17 @@
 pipeline {
     agent any
     stages {
+        stage('Clean Workspace') {
+            steps {
+                deleteDir()
+            }
+        }
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/noa-bl/FinalProject'
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: 'refs/heads/master']], 
+                          userRemoteConfigs: [[url: 'https://github.com/noa-bl/FinalProject']]
+                ])
             }
         }
         stage('Build') {
@@ -13,3 +21,4 @@ pipeline {
         }
     }
 }
+ 

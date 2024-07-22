@@ -1,12 +1,20 @@
 pipeline {
-    agent any
-    triggers {
-        githubPush()
-    }
-    stages {
-        stage('Test') {
+    agent any 
+    //{
+ //       kubernetes {
+   //         yamlFile 'jenkins/runner.yaml'
+     //       defaultContainer 'builder'
+       // }
+    //}
+    stages{
+        stage("Checkout code") {
             steps {
-                echo 'last test for triggers'
+                checkout scm
+            }
+
+        stage("Test"){
+            steps{
+                echo 'MAYBE last test for triggers'
             }
         }
     }

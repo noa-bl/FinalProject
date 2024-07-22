@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                echo 'hello! it works!'
+                echo 'last test for triggers'
             }
         }
     }

@@ -1,14 +1,9 @@
 pipeline {
-    agent {
-        kubernetes {
-            yamlFile 'charts/final-chart/jenkins-chart/runner.yaml'
-            defaultContainer 'builder'
-        }
-    }
+    agent any
     stages {
-        stage("Test") {
+        stage('Test') {
             steps {
-                echo 'Testing Jenkinsfile with Kubernetes agent'
+                echo 'Hello, Jenkins!'
             }
         }
     }

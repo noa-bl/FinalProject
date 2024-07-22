@@ -8,7 +8,7 @@ pipeline {
         }
         stage("Test") {
             steps {
-                echo 'MAYBE last test for triggers.. ugh'
+                echo 'yay!!!!!!!'
             }
         }
     }

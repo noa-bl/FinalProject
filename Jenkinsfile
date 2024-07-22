@@ -1,21 +1,14 @@
 pipeline {
-    agent any 
-    //{
- //       kubernetes {
-   //         yamlFile 'jenkins/runner.yaml'
-     //       defaultContainer 'builder'
-       // }
-    //}
-    stages{
+    agent any
+    stages {
         stage("Checkout code") {
             steps {
                 checkout scm
             }
-
-        stage("Test"){
-            steps{
-                echo 'MAYBE last test for triggers'
-                }
+        }
+        stage("Test") {
+            steps {
+                echo 'MAYBE last test for triggers.. ugh'
             }
         }
     }

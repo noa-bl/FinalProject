@@ -19,7 +19,7 @@ pipeline {
         stage("Build Docker image") {
             steps {
                 script {
-                    dockerImage = docker.build("${DOCKER_IMAGE}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}", "--no-cache .")
+                    dockerImage = docker.build("noabl/flask-app:latest", "--no-cache .")
                 }
             }
         }

@@ -9,7 +9,7 @@ pipeline {
                 checkout scm
             }
         }
-        stage("Test") {
+        stage("for test") {
             steps {
                 echo 'one'
             }

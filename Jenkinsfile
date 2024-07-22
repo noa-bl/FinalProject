@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Test') {
             steps {
-                echo 'The pushed commit :)'
+                echo 'hello! it works!'
             }
         }
     }

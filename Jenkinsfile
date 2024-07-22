@@ -5,19 +5,10 @@ pipeline {
             defaultContainer 'builder'
         }
     }
-
     stages {
-        stage("Checkout code") {
+        stage("Test") {
             steps {
-                checkout scm
-            }
-        }
-
-        stage("Echo Test") {
-            steps {
-                container('builder') {
-                    sh 'echo "This is a test for the Jenkins pipeline with Kubernetes agent."'
-                }
+                echo 'Testing Jenkinsfile with Kubernetes agent'
             }
         }
     }

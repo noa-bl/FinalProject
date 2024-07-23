@@ -10,6 +10,7 @@ pipeline {
                     }
                     // List the contents to ensure the correct path
                     sh 'ls -la finalproject-charts/charts/jenkins-chart'
+                    sh 'cat finalproject-charts/charts/jenkins-chart/runner.yaml'
                 }
             }
         }

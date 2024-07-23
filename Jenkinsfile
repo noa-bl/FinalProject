@@ -17,7 +17,7 @@ pipeline {
         stage('Run Pipeline') {
             agent {
                 kubernetes {
-                    // Specify the full path where runner.yaml will be located after cloning
+                    // Directly reference the path where runner.yaml is located after cloning
                     yamlFile 'finalproject-charts/charts/jenkins-chart/runner.yaml'
                     defaultContainer 'builder'
                 }

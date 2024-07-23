@@ -6,13 +6,16 @@ pipeline {
                 script {
                     // Clone the finalproject-charts repository
                     git url: 'https://github.com/noa-bl/finalproject-charts.git', branch: 'main'
+                    // List the contents to ensure the correct path
+                    sh 'ls -la finalproject-charts/charts/jenkins-chart'
                 }
             }
         }
         stage('Run Pipeline') {
             agent {
                 kubernetes {
-                    yamlFile 'charts/jenkins-chart/runner.yaml' // Path relative to where it will be cloned
+                    // Specify the full path where runner.yaml will be located after cloning
+                    yamlFile 'finalproject-charts/charts/jenkins-chart/runner.yaml'
                     defaultContainer 'builder'
                 }
             }

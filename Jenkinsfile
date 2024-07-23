@@ -2,8 +2,9 @@ pipeline {
     agent {
         kubernetes {
             label 'jenkins-slave'
-            yamlFile 'runner.yaml'
+            yamlFile 'finalproject-charts/charts/jenkins-chart/runner.yaml'
             defaultContainer 'builder'
+            namespace 'default' // Specify the namespace for the runner
         }
     }
     stages {

@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            // Directly reference the local path where runner.yaml is located
+            label 'jenkins-slave'
             yamlFile 'runner.yaml'
             defaultContainer 'builder'
         }

@@ -3,3 +3,4 @@
 add_readme.sh
 dirs.sh
 .DS_Store
+WiredTiger*

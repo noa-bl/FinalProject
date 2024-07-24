@@ -2,11 +2,23 @@ pipeline {
     agent {
     kubernetes {
         label 'jenkins-agent'
-        yamlFile 'runner.yaml' //not sure about path
+        yamlFile 'Infrastructure/jenkins/runner.yaml' //not sure about path
         defaultContainer 'builder'
         }
     }
-    environment {
+    stages{
+     stage("Checkout code") {
+        steps {
+            checkout scm
+            }
+        }
+        stage('echo') {
+            steps {
+               echo "so far so good"
+                }
+            }
+        }
+/*    environment {
         DOCKER_IMAGE = 'noabl/flask-app'
         DOCKERHUB_CREDENTIALS = 'docker-cred'
         GITHUB_CREDENTIALS = 'github-token'
@@ -70,6 +82,7 @@ pipeline {
             }
         }
     }
+    */
 
 
 

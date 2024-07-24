@@ -9,13 +9,13 @@ spec:
     imagePullPolicy: Always
     securityContext:
       privileged: true
-      resources:
-        requests:
-          memory: "2Gi"
-          cpu: "1"
-        limits:
-          memory: "4Gi"
-          cpu: "2"
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1"
+      limits:
+        memory: "4Gi"
+        cpu: "2"
 
   - name: python-test
     image: python:3.9-slim
@@ -34,11 +34,10 @@ spec:
       privileged: true
     volumeMounts:
       - name: docker-socket
-      ##not sure about path:
         mountPath: /var/run/docker.sock
 
   volumes:
-    - name: docker-socket
-      hostPath:
-        path: /var/run/docker.sock
-        type: Socket
+  - name: docker-socket
+    hostPath:
+      path: /var/run/docker.sock
+      type: Socket

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-myapp
+  labels:
+    app: {{ include "finals-chart.name" . }}-myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "finals-chart.name" . }}-myapp
+  template:
+    metadata:
+      labels:
+        app: {{ include "finals-chart.name" . }}-myapp
+    spec:
+      containers:
+      - name: myapp
+        image: {{ .Values.myapp.image.repository }}
+        ports:
+        - containerPort: {{ .Values.myapp.port }}
+        env:
+        - name: MONGODB_URI
+          value: {{ .Values.myapp.environment.MONGODB_URI }}

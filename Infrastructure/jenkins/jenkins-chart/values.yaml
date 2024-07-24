@@ -1,0 +1,2 @@
+persistentVolumeClaim:
+  claimName: jenkins-new-pvc

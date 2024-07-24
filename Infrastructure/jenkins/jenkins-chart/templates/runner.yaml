@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-runner
+  namespace: default
+spec:
+  containers:
+  - name: builder
+    image: ezezeasy/ez-docker-helm-build:1.41
+    imagePullPolicy: Always
+    securityContext:
+      privileged: true
+    command:
+    - cat
+    tty: true
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "500m"
+        memory: "256Mi"

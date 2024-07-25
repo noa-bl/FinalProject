@@ -2,8 +2,8 @@ pipeline {
     agent {
     kubernetes {
         label 'jenkins-agent'
-        yamlFile 'Infrastructure/jenkins/runner.yaml' //not sure about path
-        defaultContainer 'builder'
+        yamlFile 'runner.yaml' //not sure about path
+        defaultContainer 'python-test'
         }
     }
     stages{
@@ -13,9 +13,8 @@ pipeline {
             }
         }
         stage('echo') {
-            steps {
-               echo "so far so good"
-                }
+            container('python-test') {
+            sh 'python --version'
             }
         }
 /*    environment {
@@ -86,4 +85,5 @@ pipeline {
 
 
 
+}
 }

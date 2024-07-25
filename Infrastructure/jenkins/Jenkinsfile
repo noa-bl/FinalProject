@@ -3,7 +3,7 @@ pipeline {
     kubernetes {
         label 'jenkins-agent'
         yamlFile 'Infrastructure/jenkins/runner.yaml' //not sure about path
-        defaultContainer 'python-test'
+        defaultContainer 'builder'
         }
     }
     environment{
@@ -17,9 +17,8 @@ pipeline {
             }
         }
         stage('echo') {
-            container('python-test') {
-            sh 'python --version'
-            }
+            sh "git checkout --track origin/master"
+            sh 'echo test done!'
         }
 /*    environment {
         DOCKER_IMAGE = 'noabl/flask-app'

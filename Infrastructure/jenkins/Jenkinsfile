@@ -6,6 +6,10 @@ pipeline {
         defaultContainer 'python-test'
         }
     }
+    environment{
+        DOCKERHUB_CREDENTIALS = 'docker-cred'
+        GITHUB_CREDENTIALS = 'github-token'
+    }
     stages{
      stage("Checkout code") {
         steps {

@@ -2,7 +2,7 @@ pipeline {
     agent {
     kubernetes {
         label 'jenkins-agent'
-        yamlFile 'Infrastructure/jenkins/runner.yaml' //not sure about path
+        yamlFile 'runner.yaml' 
         defaultContainer 'builder'
         }
     }

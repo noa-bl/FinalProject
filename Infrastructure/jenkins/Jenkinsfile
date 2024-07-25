@@ -1,16 +1,64 @@
 pipeline {
     agent {
-            kubernetes {
+    kubernetes {
         label 'jenkins-agent'
-        yamlFile 'Infrastructure/jenkins/runner.yaml'
+        yamlFile 'Infrastructure/jenkins/runner.yaml' //not sure about path
         defaultContainer 'builder'
         }
     }
-    stages {
-        stage('Test') {
+    environment{
+        DOCKERHUB_CREDENTIALS = 'docker-cred'
+        GITHUB_CREDENTIALS = 'github-token'
+        REPO_URL = 'https://github.com/noa-bl/FinalProject.git'
+        DOCKER_IMAGE = 'noabl/flask-app'
+        APPLICATION_DIR = 'Application'
+        FEATURE_BRANCH = 'feature'
+        VERSION = 'latest'
+    }
+    stages{
+        stage("Checkout code") {
             steps {
-                sh 'node --version'
+                checkout scm
+                }
+            }
+        
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
+                }
+            }
+        }
+    
+        stage('Push Image to DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://hub.docker.com', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:${VERSION}").push()
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
+                }
+            }
+        }
+
+      
+
+    post {
+        always {
+            script {
+                currentBuild.result = 'SUCCESS'
             }
         }
     }
+    }
 }
+
+    

@@ -1,9 +1,8 @@
 services:
   mongo: 
     image: mongo:latest
-    hostname: Project_mongodb
+    hostname: mongo
     restart: always
-    command: mongod --bind_ip_all
     environment:
       - MONGO_INITDB_ROOT_USERNAME=myUserAdmin
       - MONGO_INITDB_ROOT_PASSWORD=changeme
@@ -13,14 +12,28 @@ services:
       - ./database:/data/db
       - ./mongodb_folder:/docker-entrypoint-initdb.d
       
-
   myapp:
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
+
+  test_main:
+    build:
+      context: .
+      dockerfile: dockerfile.test
+    environment:
+      - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

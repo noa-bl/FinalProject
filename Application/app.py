@@ -31,31 +31,31 @@ def index():
                 postsNum = Posts.count_documents({'username':username})
                 user_posts = Posts.find({'username':username}, {'title':1, 'content':1, 'likes':1 ,'_id':1})
                 user_posts_list = list(user_posts)
-                username = session['username'] 
-                return render_template('userPage.html', postsNum=postsNum, user_posts_list=user_posts_list, username=username)
+                username = session['username']
+                return render_template('userPage.html', postsNum=postsNum, user_posts_list=user_posts_list, username=username), 200
                 
             else:
-                return "Failed Login"
+                return "Failed Login", 200
             
         except Exception as e:
-            return f"can't connect to MongoDB: {e}"
+            return f"can't connect to MongoDB: {e}", 500
 
 @app.route(rule='/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        return render_template('signup.html')
+        return render_template('signup.html'), 200
     elif request.method == 'POST':
         session['username'] = request.form.get('username')
         username = session['username']
         password = request.form.get('password')
         try:
             if Users.find_one({'username': username}):
-                return "Username already exists"
+                return "Username already exists",200
             else:
                 Users.insert_one({'username': username, 'password': password})
-                return render_template('userPage.html', username=username, postsNum=0, user_posts_list=[])
+                return render_template('userPage.html', username=username, postsNum=0, user_posts_list=[]), 200
         except Exception as e:
-            return f"Error: {e}"
+            return f"Error: {e}", 500
         
 @app.route(rule='/newPost', methods=['GET', 'POST'])
 def newPost():
@@ -84,9 +84,9 @@ def newPost():
             user_posts_list = list(user_posts)
             username = session['username']
             app.logger.info(f"New post created for user {username} with title {title}")
-            return render_template('userPage.html', username=username, postsNum=postsNum, user_posts_list=user_posts_list)
+            return render_template('userPage.html', username=username, postsNum=postsNum, user_posts_list=user_posts_list), 200
         except Exception as e:
-            app.logger.error(f"Error creating post: {e}")
+            app.logger.error(f"Error creating post: {e}"), 500
             return f"Error: {e}", 500
 # NEED TO UNDERSTAND ON FRIDAY
 @app.route(rule='/likePost', methods=['POST'])
@@ -96,7 +96,7 @@ def likePost():
 
     # check if one arg doesn't exist
     if not post_id or not username:
-        return "Post ID or username not found", 400
+        return "Post ID or username not found", 404
 
     post = Posts.find_one({'_id': ObjectId(post_id)})
 
@@ -127,7 +127,7 @@ def allPosts(methods=['GET', 'POST']):
         postsNum = Posts.count_documents()
         posts = Posts.find()
         posts_list = list(posts)
-        return render_template('userPage.html', postsNum=postsNum, posts_list=posts_list, username=username)
+        return render_template('userPage.html', postsNum=postsNum, posts_list=posts_list, username=username), 200
 
 
 @app.route('/getUpdatedPosts')
@@ -147,7 +147,8 @@ def getUpdatedPosts():
         'username': username,
         'postsNum': postsNum,
         'user_posts_list': user_posts_list
-    })
+        
+    }), 200
 
 
 if __name__ == '__main__':

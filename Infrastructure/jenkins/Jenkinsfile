@@ -29,6 +29,15 @@ pipeline {
                 ])
             }
         }
+        stage('Create External Network') {
+            steps {
+                container('builder') {
+                    script {
+                        sh 'docker network create mynetwork || true'
+                    }
+                }
+            }
+        }
         stage('Build and Push Image for app- with temp tag') {
             steps {
                 container('builder') {

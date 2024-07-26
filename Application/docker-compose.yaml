@@ -37,4 +37,5 @@ services:
 
 networks:
   external-network:
-    external: true
+    name: bridge
+    driver: bridge

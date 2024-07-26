@@ -28,9 +28,5 @@ services:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
-    networks:
-      - app-network
 
-networks:
-  app-network:
-    driver: bridge
+

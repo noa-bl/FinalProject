@@ -11,6 +11,8 @@ services:
     volumes:
       - ./database:/data/db
       - ./mongodb_folder:/docker-entrypoint-initdb.d
+    networks:
+      - external-network
     
 
   myapp:
@@ -21,6 +23,8 @@ services:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
+    networks:
+      - external-network
 
   test_main:
     image: noabl/flask-test:latest
@@ -28,5 +32,9 @@ services:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
+    networks:
+      - external-network
 
-
+networks:
+  external-network:
+    external: true

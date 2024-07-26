@@ -68,22 +68,6 @@ pipeline {
             
             
         }
-        //ask for merge approval 
-                stage('Wait for Approval for Merge') {
-            steps {
-                script {
-                    def userInput = input(
-                        id: 'Proceed1', message: 'Approve Merge?',
-                        parameters: [
-                            [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
-                        ]
-                    )
-                    if (userInput == false) {
-                        error "Merge not approved."
-                    }
-                }
-            }
-        }
 
         //added stage: merge request when on feature branch
 stage('Create Merge Request') {
@@ -119,6 +103,23 @@ stage('Create Merge Request') {
         }
     }
 }
+        //ask for merge approval 
+                stage('Wait for Approval for Merge') {
+            steps {
+                script {
+                    def userInput = input(
+                        id: 'Proceed1', message: 'Approve Merge?',
+                        parameters: [
+                            [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
+                        ]
+                    )
+                    if (userInput == false) {
+                        error "Merge not approved."
+                    }
+                }
+            }
+        }
+
         stage('Push Final Image to DockerHub') { //only when branch is master
             when {
                 allOf{

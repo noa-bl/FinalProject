@@ -66,11 +66,7 @@ pipeline {
             steps {
                 container('docker-compose') {
                     script {
-                        // Change directory to the application directory and run docker-compose
-                        sh """
-                        cd ${WORKSPACE}/${APPLICATION_DIR}
-                        docker-compose up --build --abort-on-container-exit test_main
-                        """
+                        sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --abort-on-container-exit"
                     }
                 }
             }

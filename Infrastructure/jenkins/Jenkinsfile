@@ -15,6 +15,7 @@ pipeline {
         APPLICATION_DIR = 'Application'
         FEATURE_BRANCH = 'feature'
         VERSION = 'latest'
+        GITHUB_API_URL = 'https://api.github.com'
     }
     stages {
         stage('Checkout SCM') {
@@ -65,9 +66,38 @@ pipeline {
                 }
             
         }
-        stage('Push Final Image to DockerHub') {
+        //added stage: merge request when on feature branch
+
+         stage('Create Merge Request') {
             when {
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+                not {
+                    branch 'main'
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    script {
+                        def branchName = env.BRANCH_NAME
+                        def pullRequestTitle = "Merge ${branchName} into master"
+                        def pullRequestBody = "Merge request from Jenkins pipeline - branch ${branchName}"
+
+                        sh """
+                            curl -X POST -u ${GITHUB_TOKEN}:x-oauth-basic \
+                            -H "Accept: application/vnd.github.v3+json" \
+                            -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "master" }' \
+                            ${GITHUB_API_URL}/repos/${ REPO_URL}/pulls
+                        """
+                    }
+                }
+            }
+        }
+    }
+        stage('Push Final Image to DockerHub') { //only when branch is master
+            when {
+                allOf{
+                    branch 'master'
+                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+                }
             }
             steps {
                     script {
@@ -77,6 +107,7 @@ pipeline {
                         }
                     }
                 }
-        }
+            }
+            //add chart stages...
     }
 }

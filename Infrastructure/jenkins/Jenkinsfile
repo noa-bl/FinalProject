@@ -89,16 +89,17 @@ stage('Create Merge Request') {
                 echo "GitHub Username: ${USERNAME}"
 
                 sh """
+                    set -x
                     curl -X POST -u ${USERNAME}:${PASSWORD} \
                     -H "Accept: application/vnd.github.v3+json" \
                     -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "master" }' \
                     ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
+                    set +x
                 """
             }
         }
     }
 }
-
         stage('Push Final Image to DockerHub') { //only when branch is master
             when {
                 allOf{

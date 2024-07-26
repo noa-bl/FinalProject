@@ -11,8 +11,7 @@ services:
     volumes:
       - ./database:/data/db
       - ./mongodb_folder:/docker-entrypoint-initdb.d
-    networks:
-      - app-network
+    
 
   myapp:
     image: noabl/flask-app:temp
@@ -22,8 +21,6 @@ services:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
-    networks:
-      - app-network
 
   test_main:
     image: noabl/flask-test:latest

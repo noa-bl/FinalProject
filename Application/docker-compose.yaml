@@ -1,17 +1,17 @@
 services:
-  mongo: 
-    image: mongo:temp
+  mongo:
+    image: mongo:latest
     hostname: mongo
     restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=myUserAdmin
       - MONGO_INITDB_ROOT_PASSWORD=changeme
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - ./database:/data/db
       - ./mongodb_folder:/docker-entrypoint-initdb.d
-      
+
   myapp:
     image: noabl/flask-app:temp
     build:
@@ -32,9 +32,3 @@ services:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge

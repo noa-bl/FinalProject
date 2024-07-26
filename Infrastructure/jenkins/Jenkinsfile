@@ -91,7 +91,7 @@ pipeline {
                 }
             }
         }
-    }
+    
         stage('Push Final Image to DockerHub') { //only when branch is master
             when {
                 allOf{
@@ -110,3 +110,4 @@ pipeline {
             }
             //add chart stages...
     }
+}

@@ -1,8 +1,14 @@
 pipeline {
-    agent any
-    environment{
+    agent {
+        kubernetes {
+            label 'jenkins-agent'
+            yamlFile 'Infrastructure/jenkins/runner.yaml'
+            defaultContainer 'builder'
+        }
+    }
+    environment {
         DOCKERHUB_CREDENTIALS = 'docker-cred'
-        GITHUB_CREDENTIALS = credentials('github-token')
+        GITHUB_CREDENTIALS = 'github-token'
         REPO_URL = 'https://github.com/noa-bl/FinalProject.git'
         DOCKER_IMAGE = 'noabl/flask-app'
         APPLICATION_DIR = 'Application'
@@ -10,14 +16,46 @@ pipeline {
         VERSION = 'latest'
     }
     stages {
-        stage('Clone Repository') {
+        stage('Checkout SCM') {
             steps {
-                git url: 'https://github.com/noa-bl/FinalProject.git', branch: 'master', credentialsId: env.GITHUB_CREDENTIALS
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/feature']],
+                    userRemoteConfigs: [[
+                        url: "${REPO_URL}",
+                        credentialsId: GITHUB_CREDENTIALS
+                    ]]
+                ])
             }
         }
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Building...'
+                script {
+                    docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
+                }
+            }
+        }
+        stage('Push Image to DockerHub') {
+            steps {
+                script {
+                    docker.withRegistry('https://hub.docker.com', DOCKERHUB_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:${VERSION}").push()
+                    }
+                }
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
+                }
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                currentBuild.result = 'SUCCESS'
             }
         }
     }

@@ -72,8 +72,8 @@ pipeline {
             steps {
                     script {
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                            docker.image("${DOCKER_IMAGE}:temp").tag("${DOCKER_IMAGE}:${VERSION}")
-                            docker.image("${DOCKER_IMAGE}:${VERSION}").push()
+                        sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
+                        sh "docker push ${DOCKER_IMAGE}:${VERSION}"
                         }
                     }
                 }

@@ -18,6 +18,7 @@ pipeline {
         VERSION = 'latest'
         GITHUB_API_URL = 'https://api.github.com'
         EMAIL_RECIPIENTS = 'noablfdev@gmail.com'
+        EMAIL_CREDENTIALS = credentials('email-cred')
 
     }
     stages {
@@ -148,12 +149,20 @@ stage('Create Merge Request') {
             //add chart stages...
     }
      post {
-                failure {
-            emailext (
-                to: "${EMAIL_RECIPIENTS}",
-                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: "Unfortunately, the build ${env.JOB_NAME} #${env.BUILD_NUMBER} failed."
-            )
+            failure {
+                emailext(
+                    to: 'noablfdev@gmail.com',
+                    subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed.",
+                    mimeType: 'text/plain',
+                    smtpHost: 'smtp.gmail.com',
+                    smtpPort: '465',
+                    replyTo: 'noablfdev@gmail.com',
+                    charset: 'UTF-8',
+                    auth: true,
+                    username: "${env.EMAIL_CREDENTIALS_USR}",
+                    password: "${env.EMAIL_CREDENTIALS_PSW}"
+                )
         }
-}
+    }
 }

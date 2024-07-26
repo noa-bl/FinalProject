@@ -71,7 +71,7 @@ pipeline {
          stage('Create Merge Request') {
             when {
                 not {
-                    branch 'main'
+                    branch 'master'
                 }
             }
             steps {

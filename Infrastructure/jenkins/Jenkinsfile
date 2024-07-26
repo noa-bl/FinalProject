@@ -82,7 +82,7 @@ pipeline {
                         def pullRequestBody = "Merge request from Jenkins pipeline - branch ${branchName}"
 
                         sh """
-                            curl -X POST -u ${GITHUB_TOKEN}:x-oauth-basic \
+                            curl -X POST -u ${github-token}:x-oauth-basic \
                             -H "Accept: application/vnd.github.v3+json" \
                             -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "master" }' \
                             ${GITHUB_API_URL}/repos/${ REPO_URL}/pulls

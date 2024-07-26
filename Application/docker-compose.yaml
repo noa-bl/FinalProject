@@ -1,5 +1,6 @@
+
 services:
-  mongo:
+  mongo: 
     image: mongo:latest
     hostname: mongo
     restart: always
@@ -11,22 +12,29 @@ services:
     volumes:
       - ./database:/data/db
       - ./mongodb_folder:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
   myapp:
     image: noabl/flask-app:temp
-    build:
-      context: .
-      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
+    networks:
+      - app-network
+
   test_main:
-    build:
-      context: .
-      dockerfile: dockerfile.test
+    image: noabl/flask-test:latest
     environment:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:
       - mongo
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

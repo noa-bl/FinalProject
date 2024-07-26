@@ -11,6 +11,7 @@ pipeline {
         GITHUB_CREDENTIALS = 'github-token'
         REPO_URL = 'https://github.com/noa-bl/FinalProject.git'
         DOCKER_IMAGE = 'noabl/flask-app'
+        TEST_IMAGE = 'noabl/flask-test'
         APPLICATION_DIR = 'Application'
         FEATURE_BRANCH = 'feature'
         VERSION = 'latest'
@@ -35,6 +36,18 @@ pipeline {
                         docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:temp").push()
+                        }
+                    }
+                }
+            }
+        }
+                stage('Build and Push Image for test_main') {
+            steps {
+                container('builder') {
+                    script {
+                        docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                            docker.image("${TEST_IMAGE}:latest").push()
                         }
                     }
                 }

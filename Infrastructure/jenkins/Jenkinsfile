@@ -79,17 +79,4 @@ pipeline {
                 }
         }
     }
-    post {
-        always {
-            script {
-                currentBuild.result = 'SUCCESS'
-            }
-        }
-        cleanup {
-                script {
-                    docker.image("${DOCKER_IMAGE}:temp").remove()
-                }
-            
-        }
-    }
 }

@@ -34,7 +34,7 @@ pipeline {
                     docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
                 }
             }
-        
+        }
         stage('Run Tests') {
             steps {
                 script {
@@ -42,7 +42,7 @@ pipeline {
                 }
             }
         }
-        }
+        
         stage('Push Image to DockerHub') {
             steps {
                 script {

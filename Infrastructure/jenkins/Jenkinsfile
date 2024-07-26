@@ -1,64 +1,24 @@
 pipeline {
-    agent {
-    kubernetes {
-        label 'jenkins-agent'
-        yamlFile 'Infrastructure/jenkins/runner.yaml' 
-        defaultContainer 'builder'
-        }
-    }
+    agent any
     environment{
         DOCKERHUB_CREDENTIALS = 'docker-cred'
-        GITHUB_CREDENTIALS = 'github-token'
+        GITHUB_CREDENTIALS = credentials('github-token')
         REPO_URL = 'https://github.com/noa-bl/FinalProject.git'
         DOCKER_IMAGE = 'noabl/flask-app'
         APPLICATION_DIR = 'Application'
         FEATURE_BRANCH = 'feature'
         VERSION = 'latest'
     }
-    stages{
-        stage("Checkout code") {
+    stages {
+        stage('Clone Repository') {
             steps {
-                checkout scm
-                }
-            }
-        
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
-                }
+                git url: 'https://github.com/noa-bl/FinalProject.git', branch: 'master', credentialsId: env.GITHUB_CREDENTIALS
             }
         }
-    
-        stage('Push Image to DockerHub') {
+        stage('Build') {
             steps {
-                script {
-                    docker.withRegistry('https://hub.docker.com', DOCKERHUB_CREDENTIALS) {
-                        docker.image("${DOCKER_IMAGE}:${VERSION}").push()
-                    }
-                }
+                echo 'Building...'
             }
         }
-
-        stage('Run Tests') {
-            steps {
-                script {
-                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
-                }
-            }
-        }
-
-      
-
-    post {
-        always {
-            script {
-                currentBuild.result = 'SUCCESS'
-            }
-        }
-    }
     }
 }
-
-    

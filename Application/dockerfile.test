@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 # (if needed, typically not necessary for testing)
 EXPOSE 8082
-CMD ["pytest", "-v", "test_main.py"]
+CMD ["pytest", "test_main.py"]

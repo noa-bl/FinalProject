@@ -28,7 +28,7 @@ pipeline {
                 ])
             }
         }
-        stage('Build and Push Test Image') {
+        stage('Build and Push Image for app- with temp tag') {
             steps {
                 container('builder') {
                     script {

@@ -31,52 +31,45 @@ pipeline {
         }
         stage('Create External Network') {
             steps {
-                container('builder') {
                     script {
                         sh 'docker network create mynetwork || true'
                     }
                 }
-            }
+            
         }
         stage('Build and Push Image for app- with temp tag') {
             steps {
-                container('builder') {
                     script {
                         docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:temp").push()
                         }
                     }
-                }
             }
         }
                 stage('Build and Push Image for test_main') {
             steps {
-                container('builder') {
                     script {
                         docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
                             docker.image("${TEST_IMAGE}:latest").push()
                         }
                     }
-                }
             }
         }
         stage('Run Tests with Docker Compose') {
             steps {
-                container('docker-compose') {
                     script {
                         sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --abort-on-container-exit"
                     }
                 }
-            }
+            
         }
         stage('Push Final Image to DockerHub') {
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
-                container('builder') {
                     script {
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:temp").tag("${DOCKER_IMAGE}:${VERSION}")
@@ -84,7 +77,6 @@ pipeline {
                         }
                     }
                 }
-            }
         }
     }
     post {
@@ -94,11 +86,10 @@ pipeline {
             }
         }
         cleanup {
-            container('builder') {
                 script {
                     docker.image("${DOCKER_IMAGE}:temp").remove()
                 }
-            }
+            
         }
     }
 }

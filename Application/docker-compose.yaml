@@ -1,6 +1,6 @@
 services:
   mongo: 
-    image: mongo:latest
+    image: mongo:temp
     hostname: mongo
     restart: always
     environment:
@@ -13,6 +13,7 @@ services:
       - ./mongodb_folder:/docker-entrypoint-initdb.d
       
   myapp:
+    image: noabl/flask-app:temp
     build:
       context: .
       dockerfile: Dockerfile

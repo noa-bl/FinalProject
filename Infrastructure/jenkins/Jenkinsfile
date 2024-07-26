@@ -1,7 +1,7 @@
 pipeline {
     agent {
         kubernetes {
-            label 'jenkins-agent'
+            inheritFrom 'jenkins-runner'
             yamlFile 'Infrastructure/jenkins/runner.yaml'
             defaultContainer 'builder'
         }
@@ -28,26 +28,39 @@ pipeline {
                 ])
             }
         }
-        stage('Build Docker Image') {
+        stage('Build and Push Test Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
+                container('builder') {
+                    script {
+                        docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                            docker.image("${DOCKER_IMAGE}:temp").push()
+                        }
+                    }
                 }
             }
         }
-        stage('Run Tests') {
+        stage('Run Tests with Docker Compose') {
             steps {
-                script {
-                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
+                container('docker-compose') {
+                    script {
+                        // Use docker-compose to run the tests, using the pushed temp images
+                        sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit test_main"
+                    }
                 }
             }
         }
-        
-        stage('Push Image to DockerHub') {
+        stage('Push Final Image to DockerHub') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            }
             steps {
-                script {
-                    docker.withRegistry('https://hub.docker.com', DOCKERHUB_CREDENTIALS) {
-                        docker.image("${DOCKER_IMAGE}:${VERSION}").push()
+                container('builder') {
+                    script {
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                            docker.image("${DOCKER_IMAGE}:temp").tag("${DOCKER_IMAGE}:${VERSION}")
+                            docker.image("${DOCKER_IMAGE}:${VERSION}").push()
+                        }
                     }
                 }
             }
@@ -57,6 +70,13 @@ pipeline {
         always {
             script {
                 currentBuild.result = 'SUCCESS'
+            }
+        }
+        cleanup {
+            container('builder') {
+                script {
+                    docker.image("${DOCKER_IMAGE}:temp").remove()
+                }
             }
         }
     }

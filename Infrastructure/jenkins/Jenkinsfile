@@ -58,7 +58,7 @@ pipeline {
                 container('docker-compose') {
                     script {
                         // Use docker-compose to run the tests, using the pushed temp images
-                        sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit test_main"
+                        sh "docker-compose up -f ${APPLICATION_DIR}/docker-compose.yaml  --build --abort-on-container-exit test_main"
                     }
                 }
             }

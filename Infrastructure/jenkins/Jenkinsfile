@@ -34,6 +34,14 @@ pipeline {
                     docker.build("${DOCKER_IMAGE}:${VERSION}", "-f ${APPLICATION_DIR}/dockerfile ${APPLICATION_DIR}")
                 }
             }
+        
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
+                }
+            }
+        }
         }
         stage('Push Image to DockerHub') {
             steps {
@@ -41,13 +49,6 @@ pipeline {
                     docker.withRegistry('https://hub.docker.com', DOCKERHUB_CREDENTIALS) {
                         docker.image("${DOCKER_IMAGE}:${VERSION}").push()
                     }
-                }
-            }
-        }
-        stage('Run Tests') {
-            steps {
-                script {
-                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --build --abort-on-container-exit"
                 }
             }
         }

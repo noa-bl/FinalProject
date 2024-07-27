@@ -9,16 +9,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/noa-bl/FinalProject.git
-    path: Infrastructure/app
-    targetRevision: HEAD
-    helm:
-      valueFiles:
-        - values.yaml
-      values: |
-        image:
-          repository: noabl/flask-app
-          tag: latest
+    repoURL: oci://index.docker.io/noabl/helm-charts  # Change this to your Helm repo URL
+    chart: myapp  # Ensure this matches the name of your Helm chart
+    targetRevision: latest
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postweb
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: noabl/flask-app
+    argocd-image-updater.argoproj.io/noabl-flask-app.update-strategy: latest
+spec:
+  project: default
+  source:
+    repoURL: oci://index.docker.io/noabl/helm-charts  # Change this to your Helm repo URL
+    chart: myapp  # Ensure this matches the name of your Helm chart
+    targetRevision: latest
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

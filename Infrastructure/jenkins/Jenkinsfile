@@ -19,6 +19,8 @@ pipeline {
         GITHUB_API_URL = 'https://api.github.com'
         EMAIL_RECIPIENTS = 'noablfdev@gmail.com'
         EMAIL_CREDENTIALS = credentials('email-cred')
+        HELM_REPO = 'noabl/helm-charts'
+        HELM_EXPERIMENTAL_OCI = '1' // Enable OCI support for Helm
 
     }
     stages {
@@ -44,7 +46,7 @@ pipeline {
                     }
             }
         }
-                stage('Build and Push Image for test_main') {
+        stage('Build and Push Image for test_main') {
             steps {
                     script {
                         docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
@@ -61,60 +63,70 @@ pipeline {
                     }
                 }
             
-            
+            //Building HELM package of app's charts
         }
-
-        //added stage: merge request when on feature branch
-stage('Create Merge Request') {
-    when {
-        not {
-            branch 'master'
-        }
-    }
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            script {
-                def branchName = env.BRANCH_NAME
-                def pullRequestTitle = "Merge ${branchName} into master"
-                def pullRequestBody = "Merge request from Jenkins pipeline - branch ${branchName}"
-
-                // Debugging statements
-                echo "Branch Name: ${branchName}"
-                echo "Pull Request Title: ${pullRequestTitle}"
-                echo "Pull Request Body: ${pullRequestBody}"
-                echo "GitHub API URL: ${GITHUB_API_URL}"
-                echo "GitHub Repo: ${GITHUB_REPO}"
-                echo "GitHub Username: ${USERNAME}"
-
-                sh """
-                    set -x
-                    curl -X POST -u ${USERNAME}:${PASSWORD} \
-                    -H "Accept: application/vnd.github.v3+json" \
-                    -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "master" }' \
-                    ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
-                    set +x
-                """
-            }
-        }
-    }
-}
-        //ask for merge approval 
-            stage('Wait for Approval for Merge') {
-                when {
-                allOf{
-                    not {branch 'master'}
-                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-                    }
-                
+        stage('Build Helm Package when in master') {
+            when{
+                branch 'master'
             }
             steps {
                 script {
-                    def userInput = input(
-                        id: 'Proceed1', message: 'Approve Merge?',
-                        parameters: [
-                            [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
-                        ]
-                    )
+                    sh "helm package Infrastructure/app -d ${WORKSPACE}/helm-packages"
+                }
+            }
+        }
+
+        //added stage: merge request when on feature branch
+        stage('Create Merge Request') {
+            when {
+                not {
+                    branch 'master'
+                    }
+                }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    script {
+                        def branchName = env.BRANCH_NAME
+                        def pullRequestTitle = "Merge ${branchName} into master"
+                        def pullRequestBody = "Merge request from Jenkins pipeline - branch ${branchName}"
+
+                        // Debugging statements
+                        echo "Branch Name: ${branchName}"
+                        echo "Pull Request Title: ${pullRequestTitle}"
+                        echo "Pull Request Body: ${pullRequestBody}"
+                        echo "GitHub API URL: ${GITHUB_API_URL}"
+                        echo "GitHub Repo: ${GITHUB_REPO}"
+                        echo "GitHub Username: ${USERNAME}"
+
+                        sh """
+                        set -x
+                        curl -X POST -u ${USERNAME}:${PASSWORD} \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "master" }' \
+                        ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
+                        set +x
+                        """
+                    }
+                }
+            }
+        }
+        //ask for merge approval 
+        stage('Wait for Approval for Pushing image') {
+            when {
+                allOf{
+                    branch 'master'
+                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+                    }
+                
+                }
+            steps {
+            script {
+                def userInput = input(
+                    id: 'Proceed1', message: 'Approve Push to DockerHub?',
+                    parameters: [
+                        [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
+                    ]
+                )
                     if (userInput == false) {
                         error "Merge not approved."
                     }
@@ -138,8 +150,27 @@ stage('Create Merge Request') {
                     }
                 }
             }
-            //add chart stages...
+
+            //push HELM package for app
+        
+        stage('Push Helm Package to DockerHub') {
+            when{
+                branch 'master'
+            }
+             steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                            export HELM_EXPERIMENTAL_OCI=1
+                            helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} https://index.docker.io/v2/
+                            helm push ${WORKSPACE}/helm-packages/myapp-${VERSION}.tgz oci://index.docker.io/${HELM_REPO}
+                        """
+                    }
+                }
+            }
+        }
     }
+    
     post {
          failure{
                 script{

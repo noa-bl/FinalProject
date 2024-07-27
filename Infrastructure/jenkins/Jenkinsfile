@@ -165,11 +165,11 @@ pipeline {
                     helm registry login https://index.docker.io/v2/
                     helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/${HELM_REPO}
                 """
+                }
             }
         }
-    }
 }
-    
+    }
     post {
          failure{
                 script{

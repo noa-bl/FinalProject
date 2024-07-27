@@ -7,7 +7,7 @@ pipeline {
         }
     }
     environment {
-        DOCKERHUB_CREDENTIALS = 'docker-cred'
+        DOCKER_CREDENTIALS = 'docker-cred'
         GITHUB_CREDENTIALS = 'github-token'
         REPO_URL = 'https://github.com/noa-bl/FinalProject.git'
         GITHUB_REPO = 'noa-bl/FinalProject'
@@ -60,11 +60,12 @@ pipeline {
             }
         }
     }
+    
         stage('Build and Push Image for app- with temp tag') {
             steps {
                     script {
                         docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:temp").push()
                         }
                     }
@@ -74,7 +75,7 @@ pipeline {
             steps {
                     script {
                         docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                             docker.image("${TEST_IMAGE}:latest").push()
                         }
                     }
@@ -143,7 +144,7 @@ pipeline {
             }
             steps {
                     script {
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                         sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
                         sh "docker push ${DOCKER_IMAGE}:${VERSION}"
                         }

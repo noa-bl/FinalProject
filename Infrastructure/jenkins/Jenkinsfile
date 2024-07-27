@@ -7,7 +7,7 @@ pipeline {
         }
     }
     environment {
-        DOCKERHUB_CREDENTIALS = 'docker-cred'
+        DOCKER_CREDENTIALS = 'docker-cred'
         GITHUB_CREDENTIALS = 'github-token'
         REPO_URL = 'https://github.com/noa-bl/FinalProject.git'
         GITHUB_REPO = 'noa-bl/FinalProject'
@@ -41,7 +41,7 @@ pipeline {
         stage('Login to Docker') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh """
                             echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
                         """

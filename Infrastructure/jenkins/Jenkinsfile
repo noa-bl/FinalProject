@@ -151,9 +151,8 @@ stage('Create Merge Request') {
      post {
             failure {
             emailext(
-                to: 'noablfdev@gmail.com',
-                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
+                emailext body: 'The build failed', recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']], subject: 'the build failed due to x'
+
             )
         }
     }

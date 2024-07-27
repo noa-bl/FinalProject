@@ -153,23 +153,23 @@ pipeline {
             }
 
             //push HELM package for app
-        
-        stage('Push Helm Package to DockerHub') {
-            when{
-                branch 'master'
+  stage('Push Helm Package to DockerHub') {
+    when {
+        branch 'master'
+    }
+    steps {
+        script {
+            docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                sh """
+                    export HELM_EXPERIMENTAL_OCI=1
+                    echo ${DOCKER_PASSWORD} | helm registry login -u ${DOCKER_USERNAME} --password-stdin https://index.docker.io/v2/
+                    helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/${HELM_REPO}
+                """
             }
-        steps {
-            script {
-                 export HELM_EXPERIMENTAL_OCI=1
-                docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/noabl/helm-charts
-
-                }
-            }
-        }            
-                    
+        }
     }
 }
+
     post {
          failure{
                 script{

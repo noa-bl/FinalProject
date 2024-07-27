@@ -157,20 +157,19 @@ pipeline {
             when{
                 branch 'master'
             }
-    steps {
+        steps {
         script {
-           docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS){
+            docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
                 sh """
                     export HELM_EXPERIMENTAL_OCI=1
-                    helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} https://index.docker.io/v2/
+                    helm registry login https://index.docker.io/v2/
                     helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/${HELM_REPO}
                 """
                 }
             }
         }
-    }
 }
-    
+    }
     post {
          failure{
                 script{

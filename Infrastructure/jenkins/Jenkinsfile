@@ -111,28 +111,28 @@ pipeline {
             }
         }
         //ask for merge approval 
-        stage('Wait for Approval for Pushing image') {
-            when {
-                allOf{
-                    branch 'master'
-                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-                    }
-                
-                }
-            steps {
-            script {
-                def userInput = input(
-                    id: 'Proceed1', message: 'Approve Push to DockerHub?',
-                    parameters: [
-                        [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
-                    ]
-                )
-                    if (userInput == false) {
-                        error "Merge not approved."
-                    }
-                }
-            }
-        }
+        //stage('Wait for Approval for Pushing image') {
+          //  when {
+            //    allOf{
+              //      branch 'master'
+                //    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+//                    }
+ //               
+   //             }
+     //       steps {
+       //     script {
+         //       def userInput = input(
+           //         id: 'Proceed1', message: 'Approve Push to DockerHub?',
+//                    parameters: [
+  //                      [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
+    //                ]
+      //          )
+        //            if (userInput == false) {
+          //              error "Merge not approved."
+            //        }
+              //  }
+            //}
+        //}
 
         stage('Push Final Image to DockerHub') { //only when branch is master
             when {
@@ -159,7 +159,7 @@ pipeline {
             }
     steps {
         script {
-            withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+           docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS){
                 sh """
                     export HELM_EXPERIMENTAL_OCI=1
                     helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} https://index.docker.io/v2/

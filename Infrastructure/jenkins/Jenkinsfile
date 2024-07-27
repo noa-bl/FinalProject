@@ -24,164 +24,18 @@ pipeline {
         
 
     }
-    stages {
-        stage('Checkout SCM') {
-            steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/feature'], [name: '*/master']], //change later
-                    userRemoteConfigs: [[
-                        url: "${REPO_URL}",
-                        credentialsId: GITHUB_CREDENTIALS
-                    ]]
-                ])
-            }
-        }
-        stage('install helm') {
-    steps {
-        script {
-            // Check if Helm is installed
-            def helmInstalled = sh(script: 'which helm', returnStatus: true) == 0
-
-            // Install Helm if not installed
-            if (!helmInstalled) {
-                sh '''
-                wget https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
-                ls -a
-                tar -xzvf helm-v3.6.1-linux-amd64.tar.gz
-                sudo cp linux-amd64/helm /usr/bin/
-                helm version
-                '''
-            } 
-            else {
-                echo 'Helm is already installed'
-                sh 'helm version'
-                }
-            }
-        }
-    }
-        stage('Build and Push Image for app- with temp tag') {
-            steps {
-                    script {
-                        docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                            docker.image("${DOCKER_IMAGE}:temp").push()
-                        }
-                    }
-            }
-        }
-        stage('Build and Push Image for test_main') {
-            steps {
-                    script {
-                        docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                            docker.image("${TEST_IMAGE}:latest").push()
-                        }
-                    }
-            }
-        }
-        stage('Run Tests with Docker Compose') {
-            steps {
-                    script {
-                        sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --abort-on-container-exit"
-                    }
-                }
-            
-            //Building HELM package of app's charts
-        }
-        stage('Build Helm Package when in master') {
-            when{
-                branch 'master'
-            }
+       stages{
+        stage('Login to Docker') {
             steps {
                 script {
-                    sh "helm package Infrastructure/app -d ${WORKSPACE}/helm-packages"
-                }
-            }
-        }
-
-        //added stage: merge request when on feature branch
-        stage('Create Merge Request') {
-            when {
-                not {
-                    branch 'master'
-                    }
-                }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    script {
-                        def branchName = env.BRANCH_NAME
-                        def pullRequestTitle = "Merge ${branchName} into master"
-                        def pullRequestBody = "Merge request from Jenkins pipeline - branch ${branchName}"
-
-                        // Debugging statements
-                        echo "Branch Name: ${branchName}"
-                        echo "Pull Request Title: ${pullRequestTitle}"
-                        echo "Pull Request Body: ${pullRequestBody}"
-                        echo "GitHub API URL: ${GITHUB_API_URL}"
-                        echo "GitHub Repo: ${GITHUB_REPO}"
-                        echo "GitHub Username: ${USERNAME}"
-
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh """
-                        set -x
-                        curl -X POST -u ${USERNAME}:${PASSWORD} \
-                        -H "Accept: application/vnd.github.v3+json" \
-                        -d '{ "title": "${pullRequestTitle}", "body": "${pullRequestBody}", "head": "${branchName}", "base": "master" }' \
-                        ${GITHUB_API_URL}/repos/${GITHUB_REPO}/pulls
-                        set +x
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
                         """
                     }
                 }
             }
         }
-        stage('Push Final Image to DockerHub') { //only when branch is master!
-            when {
-                allOf{
-                    branch 'master'
-                    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-                }
-            }
-            steps {
-                    script {
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
-                        sh "docker push ${DOCKER_IMAGE}:${VERSION}"
-                        }
-                    }
-                }
-            }
-
-            //push HELM package for app
-      
-           
-        stage('Push Helm Package to DockerHub') {
-    when {
-        branch 'master'
     }
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                helm registry login registry-1.docker.io -u ${DOCKER_USERNAME} ${DOCKER_PASSWORD}
-                helm push finals-chart-0.1.0.tgz oci://registry-1.docker.io/docker
-                """
-            }
-        }
-            }
-        }
     }
-
-    post {
-         failure{
-                script{
-                    emailext subject: "Build Failure - automated notification",
-                        body: "En error occured, please check latest console output",
-                        replyTo: 'noablfdev@gmail.com',
-                        mimeType: 'text/plain',
-                        to: 'noablfdev@gmail.com'
-                }
-            }
-        }
-}
-        
-    
+    }

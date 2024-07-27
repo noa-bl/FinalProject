@@ -54,18 +54,10 @@ pipeline {
                 ])
             }
         }
-        stage('Create External Network') {
-            steps {
-                    script {
-                        sh 'doockker network create mynetwork || true'
-                    }
-                }
-            
-        }
         stage('Build and Push Image for app- with temp tag') {
             steps {
                     script {
-                        docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
+                        docker.buicdld("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
                             docker.image("${DOCKER_IMAGE}:temp").push()
                         }

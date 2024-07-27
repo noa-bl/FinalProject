@@ -145,7 +145,7 @@ pipeline {
             steps {
                     script {
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
+                        sh "docker tag ${HELM_REPO}:temp ${DOCKER_IMAGE}:${VERSION}"
                         sh "docker push ${DOCKER_IMAGE}:${VERSION}"
                         }
                     }
@@ -158,19 +158,18 @@ pipeline {
             when{
                 branch 'master'
             }
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                    export HELM_EXPERIMENTAL_OCI=1
-                    echo ${DOCKER_PASSWORD} | helm registry login -u ${DOCKER_USERNAME} --password-stdin https://index.docker.io/v2/
-                    helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/${HELM_REPO}
-                """
+        steps {
+            script {
+                 export HELM_EXPERIMENTAL_OCI=1
+                docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
+                helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/noabl/helm-charts
+
+                }
             }
-        }
+        }            
+                    
     }
 }
-    }
     post {
          failure{
                 script{

@@ -134,30 +134,6 @@ pipeline {
                 }
             }
         }
-        //ask for merge approval 
-        //stage('Wait for Approval for Pushing image') {
-          //  when {
-            //    allOf{
-              //      branch 'master'
-                //    expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-//                    }
- //               
-   //             }
-     //       steps {
-       //     script {
-         //       def userInput = input(
-           //         id: 'Proceed1', message: 'Approve Push to DockerHub?',
-//                    parameters: [
-  //                      [$class: 'BooleanParameterDefinition', defaultValue: true, description: 'Approve to merge the feature branch into master?', name: 'approve']
-    //                ]
-      //          )
-        //            if (userInput == false) {
-          //              error "Merge not approved."
-            //        }
-              //  }
-            //}
-        //}
-
         stage('Push Final Image to DockerHub') { //only when branch is master!
             when {
                 allOf{
@@ -186,7 +162,7 @@ pipeline {
         script {
             withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                 sh """
-                helm registry login registry-1.docker.io -u ${DOCKER_USERNAME} --password-stdin <<< ${DOCKER_PASSWORD}
+                helm registry login registry-1.docker.io -u ${DOCKER_USERNAME} ${DOCKER_PASSWORD}
                 helm push finals-chart-0.1.0.tgz oci://registry-1.docker.io/docker
                 """
             }

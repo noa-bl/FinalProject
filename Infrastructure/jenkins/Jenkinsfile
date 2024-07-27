@@ -5,19 +5,18 @@ Map FAILED_STAGES = [:]  // Global map to keep track of stage results and error 
 
 // Function to run a stage and capture its result and any error message
 def runTest(String stageName, Closure body) {
-    //build result will stay success even if a stage fails- for graceful failing. Have a stage fail without build fail.
     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
         try {
             body()  // Execute the stage's steps
+            // If no exception, mark as SUCCESS
+            FAILED_STAGES["${stageName}"] = "SUCCESS"
         } catch (e) {
             // Capture the stage name and error message in the global map if it fails
             FAILED_STAGES["${stageName}"] = "FAILED: ${e.message}"
-            throw e //  the error to mark the stage as failed
+            throw e // Propagate the error to mark the stage as failed
         }
     }
 }
-
-
 pipeline {
     agent {
         kubernetes {
@@ -169,10 +168,10 @@ stage('Create Merge Request') {
             //add chart stages...
     }
 
+
     post {
         failure {  // This block runs if the pipeline fails
-                script {
-                
+            script {
                 def buildNumber = currentBuild.number  // Get the current build number
                 def failedStage = FAILED_STAGES.find { it.value.startsWith('FAILED') }?.key  // Get the name of the failed stage
                 def errorMessage = FAILED_STAGES[failedStage]?.split(':', 2)?.getAt(1)?.trim()  // Extract only the error message
@@ -185,9 +184,22 @@ stage('Create Merge Request') {
                     emailBody += " due to: ${errorMessage}"
                 }
                 emailBody += "\n\nStage Results: ${FAILED_STAGES}"  // Include the stage results in the email body
-                echo emailBody // Log sending email
+                echo emailBody  // Log the email body
+
                 // Send the email with the constructed subject and body
-                
+                try {
+                    emailext(
+                        to: "noablfdev@gmail.com",
+                        subject: emailSubject,
+                        body: emailBody,
+                        mimeType: 'text/plain',
+                        attachLog: true,  // Attach the build log to the email
+                        recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                        replyTo: 'noablfs@gmail.com'
+                    )
+                } catch (Exception e) {
+                    echo "Failed to send email: ${e.message}"
+                }
             }
         }
     }

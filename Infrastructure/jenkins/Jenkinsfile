@@ -135,7 +135,7 @@ pipeline {
             //}
         //}
 
-        stage('Push Final Image to DockerHub') { //only when branch is master
+        stage('Push Final Image to DockerHub') { //only when branch is master!
             when {
                 allOf{
                     branch 'master'

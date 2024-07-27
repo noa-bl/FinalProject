@@ -171,7 +171,8 @@ stage('Create Merge Request') {
 
     post {
         failure {  // This block runs if the pipeline fails
-            script {
+                script {
+                echo 'sending email notification from jenkins'  // Log sending email
                 def buildNumber = currentBuild.number  // Get the current build number
                 def failedStage = FAILED_STAGES.find { it.value.startsWith('FAILED') }?.key  // Get the name of the failed stage
                 def errorMessage = FAILED_STAGES[failedStage]?.split(':', 2)?.getAt(1)?.trim()  // Extract only the error message
@@ -186,10 +187,17 @@ stage('Create Merge Request') {
                 emailBody += "\n\nStage Results: ${FAILED_STAGES}"  // Include the stage results in the email body
 
                 // Send the email with the constructed subject and body
-                emailext to: "noablfdev@gmail.com",
-                         subject: emailSubject,
-                         body: emailBody,
-                         mimeType: 'text/plain'
+                emailext(
+                    subject: emailSubject,
+                    body: emailBody,
+                    recipientProviders: [
+                        [$class: 'CulpritsRecipientProvider'],
+                        [$class: 'RequesterRecipientProvider']
+                    ],
+                    to: "noablfdev@gmail.com",
+                    mimeType: 'text/plain',
+                    notifyEveryUnstableBuild: true
+                )
             }
         }
     }

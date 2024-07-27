@@ -157,19 +157,19 @@ pipeline {
             when{
                 branch 'master'
             }
-             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh """
-                            export HELM_EXPERIMENTAL_OCI=1
-                            helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} https://index.docker.io/v2/
-                            helm push ${WORKSPACE}/helm-packages/myapp-${VERSION}.tgz oci://index.docker.io/${HELM_REPO}
-                        """
-                    }
+    steps {
+        script {
+            withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                sh """
+                    export HELM_EXPERIMENTAL_OCI=1
+                    helm registry login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} https://index.docker.io/v2/
+                    helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://index.docker.io/${HELM_REPO}
+                """
                 }
             }
         }
     }
+}
     
     post {
          failure{

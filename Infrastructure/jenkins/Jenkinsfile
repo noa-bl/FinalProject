@@ -21,8 +21,6 @@ pipeline {
         EMAIL_CREDENTIALS = credentials('email-cred')
         HELM_REPO = 'noabl/helm-charts'
         HELM_EXPERIMENTAL_OCI = '1' // Enable OCI support for Helm
-        
-
     }
     stages {
         stage('Checkout SCM') {
@@ -37,61 +35,57 @@ pipeline {
                 ])
             }
         }
-        stage('install helm') {
-    steps {
-        script {
-            // Check if Helm is installed
-            def helmInstalled = sh(script: 'which helm', returnStatus: true) == 0
+        stage('Install Helm') {
+            steps {
+                script {
+                    // Check if Helm is installed
+                    def helmInstalled = sh(script: 'which helm', returnStatus: true) == 0
 
-            // Install Helm if not installed
-            if (!helmInstalled) {
-                sh '''
-                wget https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
-                ls -a
-                tar -xzvf helm-v3.6.1-linux-amd64.tar.gz
-                sudo cp linux-amd64/helm /usr/bin/
-                helm version
-                '''
-            } 
-            else {
-                echo 'Helm is already installed'
-                sh 'helm version'
+                    // Install Helm if not installed
+                    if (!helmInstalled) {
+                        sh '''
+                        wget https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
+                        ls -a
+                        tar -xzvf helm-v3.6.1-linux-amd64.tar.gz
+                        sudo cp linux-amd64/helm /usr/bin/
+                        helm version
+                        '''
+                    } else {
+                        echo 'Helm is already installed'
+                        sh 'helm version'
+                    }
                 }
             }
         }
-    }
-    
         stage('Build and Push Image for app- with temp tag') {
             steps {
-                    script {
-                        docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                            docker.image("${DOCKER_IMAGE}:temp").push()
-                        }
+                script {
+                    docker.build("${DOCKER_IMAGE}:temp", "-f ${APPLICATION_DIR}/Dockerfile ${APPLICATION_DIR}")
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image("${DOCKER_IMAGE}:temp").push()
                     }
+                }
             }
         }
         stage('Build and Push Image for test_main') {
             steps {
-                    script {
-                        docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                            docker.image("${TEST_IMAGE}:latest").push()
-                        }
+                script {
+                    docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image("${TEST_IMAGE}:latest").push()
                     }
+                }
             }
         }
         stage('Run Tests with Docker Compose') {
             steps {
-                    script {
-                        sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --abort-on-container-exit"
-                    }
+                script {
+                    sh "docker-compose -f ${APPLICATION_DIR}/docker-compose.yaml up --abort-on-container-exit"
                 }
-            
-            //Building HELM package of app's charts
+            }
         }
         stage('Build Helm Package when in master') {
-            when{
+            when {
                 branch 'master'
             }
             steps {
@@ -100,14 +94,12 @@ pipeline {
                 }
             }
         }
-
-        //added stage: merge request when on feature branch
         stage('Create Merge Request') {
             when {
                 not {
                     branch 'master'
-                    }
                 }
+            }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     script {
@@ -137,52 +129,46 @@ pipeline {
         }
         stage('Push Final Image to DockerHub') { //only when branch is master!
             when {
-                allOf{
+                allOf {
                     branch 'master'
                     expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
                 }
             }
             steps {
-                    script {
-                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
                         sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
                         sh "docker push ${DOCKER_IMAGE}:${VERSION}"
-                        }
                     }
                 }
             }
-
-            //push HELM package for app
-      
-           
+        }
         stage('Push Helm Package to DockerHub') {
-    when {
-        branch 'master'
-    }
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                helm registry login registry-1.docker.io -u ${DOCKER_USERNAME} ${DOCKER_PASSWORD}
-                helm push finals-chart-0.1.0.tgz oci://registry-1.docker.io/docker
-                """
+            when {
+                branch 'master'
             }
-        }
-            }
-        }
-    }
-
-    post {
-         failure{
-                script{
-                    emailext subject: "Build Failure - automated notification",
-                        body: "En error occured, please check latest console output",
-                        replyTo: 'noablfdev@gmail.com',
-                        mimeType: 'text/plain',
-                        to: 'noablfdev@gmail.com'
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                        export HELM_EXPERIMENTAL_OCI=1
+                        echo $DOCKER_PASSWORD | helm registry login registry-1.docker.io -u $DOCKER_USERNAME --password-stdin
+                        helm push ${WORKSPACE}/helm-packages/finals-chart-0.1.0.tgz oci://registry-1.docker.io/${HELM_REPO}
+                        """
+                    }
                 }
             }
         }
+    }
+    post {
+        failure {
+            script {
+                emailext subject: "Build Failure - automated notification",
+                    body: "An error occurred, please check the latest console output",
+                    replyTo: 'noablfdev@gmail.com',
+                    mimeType: 'text/plain',
+                    to: 'noablfdev@gmail.com'
+            }
+        }
+    }
 }
-        
-    

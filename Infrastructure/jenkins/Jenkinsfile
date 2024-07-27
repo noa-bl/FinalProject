@@ -145,7 +145,7 @@ pipeline {
             steps {
                     script {
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        sh "docker tag ${HELM_REPO}:temp ${DOCKER_IMAGE}:${VERSION}"
+                        sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
                         sh "docker push ${DOCKER_IMAGE}:${VERSION}"
                         }
                     }

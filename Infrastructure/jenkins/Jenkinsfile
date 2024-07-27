@@ -1,3 +1,23 @@
+import groovy.transform.Field
+
+@Field
+Map FAILED_STAGES = [:]  // Global map to keep track of stage results and error messages
+
+// Function to run a stage and capture its result and any error message
+def runTest(String stageName, Closure body) {
+    //build result will stay success even if a stage fails- for graceful failing. Have a stage fail without build fail.
+    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        try {
+            body()  // Execute the stage's steps
+        } catch (e) {
+            // Capture the stage name and error message in the global map if it fails
+            FAILED_STAGES["${stageName}"] = "FAILED: ${e.message}"
+            throw e //  the error to mark the stage as failed
+        }
+    }
+}
+
+
 pipeline {
     agent {
         kubernetes {
@@ -148,13 +168,29 @@ stage('Create Merge Request') {
             }
             //add chart stages...
     }
-     post {
-            failure {
-            emailext(
-                to: 'noablfdev@gmail.com',
-                subject: "FAILURE: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-                body: "Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' failed."
-            )
+
+    post {
+        failure {  // This block runs if the pipeline fails
+            script {
+                def buildNumber = currentBuild.number  // Get the current build number
+                def failedStage = FAILED_STAGES.find { it.value.startsWith('FAILED') }?.key  // Get the name of the failed stage
+                def errorMessage = FAILED_STAGES[failedStage]?.split(':', 2)?.getAt(1)?.trim()  // Extract only the error message
+
+                // Construct the email subject
+                def emailSubject = "Build ${buildNumber} Failed - Automatic Email"
+                // Construct the email body
+                def emailBody = "Build ${buildNumber} failed at stage ${failedStage}"
+                if (errorMessage) {
+                    emailBody += " due to: ${errorMessage}"
+                }
+                emailBody += "\n\nStage Results: ${FAILED_STAGES}"  // Include the stage results in the email body
+
+                // Send the email with the constructed subject and body
+                emailext to: "noablfdev@gmail.com",
+                         subject: emailSubject,
+                         body: emailBody,
+                         mimeType: 'text/plain'
+            }
         }
     }
 }

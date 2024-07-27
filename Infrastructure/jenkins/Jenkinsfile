@@ -45,7 +45,6 @@ pipeline {
                     if (!helmInstalled) {
                         sh '''
                         wget https://get.helm.sh/helm-v3.6.1-linux-amd64.tar.gz
-                        ls -a
                         tar -xzvf helm-v3.6.1-linux-amd64.tar.gz
                         sudo cp linux-amd64/helm /usr/bin/
                         helm version
@@ -90,7 +89,8 @@ pipeline {
             }
             steps {
                 script {
-                    sh "helm package Infrastructure/app -d ${WORKSPACE}/helm-packages"
+                    // Correct the path to your Helm chart directory
+                    sh "helm package ${WORKSPACE}/Infrastructure/app --version 0.1.0"
                 }
             }
         }
@@ -144,22 +144,21 @@ pipeline {
             }
         }
         stage('Push Helm Package to DockerHub') {
-    when {
-        branch 'master'
-    }
-    steps {
-        script {
-            withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                export HELM_EXPERIMENTAL_OCI=1
-                echo $DOCKER_PASSWORD | helm registry login registry-1.docker.io -u $DOCKER_USERNAME --password-stdin
-                helm package ${WORKSPACE}/helm-charts/myapp --version 0.1.0
-                helm push ${WORKSPACE}/myapp-0.1.0.tgz oci://registry-1.docker.io/$DOCKER_USERNAME/helm-charts
-                """
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh """
+                        export HELM_EXPERIMENTAL_OCI=1
+                        echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u \$DOCKER_USERNAME --password-stdin
+                        helm push ${WORKSPACE}/Infrastructure/app-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts
+                        """
+                    }
+                }
             }
         }
-    }
-}
     }
     post {
         failure {

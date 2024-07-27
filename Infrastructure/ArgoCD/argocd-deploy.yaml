@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: oci://index.docker.io/noabl/helm-charts  # Change this to your Helm repo URL
     chart: myapp  # Ensure this matches the name of your Helm chart
-    targetRevision: latest
+    targetRevision: 0.1.0  # Use the chart version here
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

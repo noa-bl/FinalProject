@@ -25,6 +25,19 @@ pipeline {
 
     }
        stages{
+         stage('Checkout SCM') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/feature'], [name: '*/master']], //change later
+                    userRemoteConfigs: [[
+                        url: "${REPO_URL}",
+                        credentialsId: GITHUB_CREDENTIALS
+                    ]]
+                ])
+            }
+         }
+
         stage('Login to Docker') {
             steps {
                 script {

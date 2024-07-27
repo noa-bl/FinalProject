@@ -17,7 +17,6 @@ def runTest(String stageName, Closure body) {
         }
     }
 }
-
 pipeline {
     agent {
         kubernetes {
@@ -54,6 +53,7 @@ pipeline {
                 ])
             }
         }
+        // TRIGGERING FAIL! line 60 docker.build
         stage('Build and Push Image for app- with temp tag') {
             steps {
                     script {
@@ -161,7 +161,6 @@ stage('Create Merge Request') {
             //add chart stages...
     }
 
-
     post {
         failure {  // This block runs if the pipeline fails
             script {
@@ -172,7 +171,7 @@ stage('Create Merge Request') {
                 // Construct the email subject
                 def emailSubject = "Build ${buildNumber} Failed - Automatic Email"
                 // Construct the email body
-                def emailBody = "Build ${buildNumber} failed at stage ${failedStage}"
+                def emailBody = "Build ${buildNumber} failed at stage ${failedStage ?: 'unknown stage'}"
                 if (errorMessage) {
                     emailBody += " due to: ${errorMessage}"
                 }
@@ -186,8 +185,7 @@ stage('Create Merge Request') {
                         subject: emailSubject,
                         body: emailBody,
                         mimeType: 'text/plain',
-                        attachLog: true,  // Attach the build log to the email
-                        replyTo: 'noablfdev@gmail.com'
+                        attachLog: true  // Attach the build log to the email
                     )
                 } catch (Exception e) {
                     echo "Failed to send email: ${e.message}"

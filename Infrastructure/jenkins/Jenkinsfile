@@ -71,7 +71,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "helm package Infrastructure\app -d ${WORKSPACE}/helm-packages"
+                    sh "helm package Infrastructure/app -d ${WORKSPACE}/helm-packages"
                 }
             }
         }

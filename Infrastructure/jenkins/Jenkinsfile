@@ -1,23 +1,3 @@
-import groovy.transform.Field
-
-@Field
-Map FAILED_STAGES = [:]  // Global map to keep track of stage results and error messages
-
-// Function to run a stage and capture its result and any error message
-def runTest(String stageName, Closure body) {
-    //build result will stay success even if a stage fails- for graceful failing. Have a stage fail without build fail.
-    catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-        try {
-            body()  // Execute the stage's steps
-        } catch (e) {
-            // Capture the stage name and error message in the global map if it fails
-            FAILED_STAGES["${stageName}"] = "FAILED: ${e.message}"
-            throw e //  the error to mark the stage as failed
-        }
-    }
-}
-
-
 pipeline {
     agent {
         kubernetes {
@@ -53,14 +33,6 @@ pipeline {
                     ]]
                 ])
             }
-        }
-        stage('Create External Network') {
-            steps {
-                    script {
-                        sh 'docker network create mynetwork || true'
-                    }
-                }
-            
         }
         stage('Build and Push Image for app- with temp tag') {
             steps {
@@ -160,7 +132,7 @@ stage('Create Merge Request') {
             steps {
                     script {
                         docker.withRegistry('https://index.docker.io/v1/', DOCKERHUB_CREDENTIALS) {
-                        sh "docker tag ${DOCKER_IMAaGE}:temp ${DOCKER_IMAGE}:${VERSION}"
+                        sh "docker tag ${DOCKER_IMAGE}:temp ${DOCKER_IMAGE}:${VERSION}"
                         sh "docker push ${DOCKER_IMAGE}:${VERSION}"
                         }
                     }
@@ -168,37 +140,16 @@ stage('Create Merge Request') {
             }
             //add chart stages...
     }
-
     post {
-        failure {  // This block runs if the pipeline fails
-                script {
-                echo 'sending email notification from jenkins'  // Log sending email
-                def buildNumber = currentBuild.number  // Get the current build number
-                def failedStage = FAILED_STAGES.find { it.value.startsWith('FAILED') }?.key  // Get the name of the failed stage
-                def errorMessage = FAILED_STAGES[failedStage]?.split(':', 2)?.getAt(1)?.trim()  // Extract only the error message
-
-                // Construct the email subject
-                def emailSubject = "Build ${buildNumber} Failed - Automatic Email"
-                // Construct the email body
-                def emailBody = "Build ${buildNumber} failed at stage ${failedStage}"
-                if (errorMessage) {
-                    emailBody += " due to: ${errorMessage}"
+         failure{
+                script{
+                    emailext subject: "Build Failure - automated notification",
+                        body: "En error occured, please check latest console output",
+                        replyTo: 'noablfdev@gmail.com',
+                        mimeType: 'text/plain',
+                        to: 'noablfdev@gmail.com'
                 }
-                emailBody += "\n\nStage Results: ${FAILED_STAGES}"  // Include the stage results in the email body
-
-                // Send the email with the constructed subject and body
-                emailext(
-                    subject: emailSubject,
-                    body: emailBody,
-                    recipientProviders: [
-                        [$class: 'CulpritsRecipientProvider'],
-                        [$class: 'RequesterRecipientProvider']
-                    ],
-                    to: "noablfdev@gmail.com",
-                    mimeType: 'text/plain',
-                    notifyEveryUnstableBuild: true
-                )
+                }
             }
-        }
+        
     }
-}

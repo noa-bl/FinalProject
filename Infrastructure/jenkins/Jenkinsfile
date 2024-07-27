@@ -142,20 +142,15 @@ stage('Create Merge Request') {
             //add chart stages...
     }
     post {
-         changed {
-            script {
-                if (currentBuild.currentResult == 'FAILURE') { 
-                    emailext subject: '$DEFAULT_SUBJECT',
-                        body: '$DEFAULT_CONTENT',
-                        recipientProviders: [
-                            [$class: 'CulpritsRecipientProvider'],
-                            [$class: 'DevelopersRecipientProvider'],
-                            [$class: 'RequesterRecipientProvider'] 
-                        ], 
-                        replyTo: '$DEFAULT_REPLYTO',
-                        to: '$DEFAULT_RECIPIENTS'
+         failure{
+                script{
+                    emailext subject: "Build Failure - automated notification",
+                        body: "En error occured, please check latest console output",
+                        replyTo: 'noablfdev@gmail.com',
+                        mimeType: 'text/plain',
+                        to: 'noablfdev@gmail.com'
+                }
                 }
             }
-        }
+        
     }
-}

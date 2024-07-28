@@ -9,9 +9,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/noa-bl/FinalProject.git  
-    targetRevision: HEAD  
-    path: path-to-your-chart-directory 
+    repoURL: oci://docker.io/noabl/finals-chart
+    chart: finals-chart
+    targetRevision: 0.1.2
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

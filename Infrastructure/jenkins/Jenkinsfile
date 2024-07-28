@@ -130,19 +130,15 @@ pipeline {
             when {
                 branch 'master'
             }
-            steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh """
-                        export HELM_EXPERIMENTAL_OCI=1
-                        echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u \$DOCKER_USERNAME --password-stdin
-                        """
-                    }
-                    withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
-                        sh """
-                        helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/helm-charts
-                        """
-                    }
+             steps {
+            script {
+            withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
+                sh """
+                export HELM_EXPERIMENTAL_OCI=1
+                echo \$DOCKER_PAT | helm registry login registry-1.docker.io -u noabl --password-stdin
+                helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/helm-charts
+                """
+                }
                 }
             }
         }

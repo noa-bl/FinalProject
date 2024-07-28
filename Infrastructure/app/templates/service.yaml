@@ -4,6 +4,11 @@ metadata:
   name: myapp-svc
   labels:
     app: {{ include "finals-chart.name" . }}-myapp
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
 spec:
   type: NodePort 
   ports:
@@ -15,3 +20,22 @@ spec:
   selector:
     app: {{ include "finals-chart.name" . }}-myapp
 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  labels:
+    app: mongodb
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: mongodb

@@ -4,6 +4,11 @@ metadata:
   name: {{ include "finals-chart.fullname" . }}-mongo
   labels:
     app: {{ include "finals-chart.name" . }}-mongo
+    app.kubernetes.io/managed-by: "Helm"
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:
@@ -14,6 +19,11 @@ spec:
     metadata:
       labels:
         app: {{ include "finals-chart.name" . }}-mongo
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        meta.helm.sh/release-name: {{ .Release.Name }}
+        meta.helm.sh/release-namespace: {{ .Release.Namespace }}
     spec:
       initContainers:
       - name: init-mongo
@@ -55,6 +65,12 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: mongo-data
+      labels:
+        app.kubernetes.io/managed-by: "Helm"
+        app.kubernetes.io/instance: {{ .Release.Name }}
+      annotations:
+        meta.helm.sh/release-name: {{ .Release.Name }}
+        meta.helm.sh/release-namespace: {{ .Release.Namespace }}
     spec:
       accessModes: ["ReadWriteOnce"]
       resources:

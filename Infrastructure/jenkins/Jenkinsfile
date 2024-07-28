@@ -132,7 +132,7 @@ pipeline {
             }
              steps {
             script {
-            withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
+            withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
                 echo \$DOCKER_PAT | helm registry login docker.io -u noabl --password-stdin

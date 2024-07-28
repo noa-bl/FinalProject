@@ -90,7 +90,7 @@ pipeline {
             steps {
                 script {
                     // Correct the path to your Helm chart directory
-                    sh "helm package ${WORKSPACE}/Infrastructure/app --version 0.1.0"
+                    sh "helm package ${WORKSPACE}/Infrastructure/app --version 0.1.1"
                 }
             }
         }

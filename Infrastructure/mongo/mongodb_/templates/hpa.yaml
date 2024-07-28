@@ -1,15 +1,15 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: {{ include "finals-chart.fullname" . }}-mongo-hpa
+  name: {{ include "mongo-chart.fullname" . }}-mongo-hpa
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ include "finals-chart.name" . }}
+    app: {{ include "mongo-chart.name" . }}
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ include "finals-chart.fullname" . }}-mongo
+    name: {{ include "mongo-chart.fullname" . }}-mongo
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
   metrics:

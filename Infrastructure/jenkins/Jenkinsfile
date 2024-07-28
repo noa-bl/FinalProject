@@ -135,7 +135,7 @@ pipeline {
             withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                 sh """
                 export HELM_EXPERIMENTAL_OCI=1
-                echo \$DOCKER_PAT | helm registry login docker.io -u noabl --password-stdin
+                echo \$DOCKER_PASSWORD | helm registry login docker.io -u noabl --password-stdin
                 helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.2.tgz oci://docker.io/noabl
                 """
                 }

@@ -9,9 +9,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: oci://registry-1.docker.io/noabl  # The root of your Docker repo
-    chart: finals-chart  # The name of your Helm chart
-    targetRevision: 0.1.2  # The version of your Helm chart
+    repoURL: oci://index.docker.io/noabl/finals-chart
+    chart: finals-chart
+    targetRevision: 0.1.2
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: default

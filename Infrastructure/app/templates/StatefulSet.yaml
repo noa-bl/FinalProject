@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "finals-chart.fullname" . }}-mongo
+  labels:
+    app: {{ include "finals-chart.name" . }}-mongo
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "finals-chart.name" . }}-mongo
+  serviceName: "mongo"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "finals-chart.name" . }}-mongo
+    spec:
+      initContainers:
+      - name: init-mongo
+        image: mongo:latest
+        command:
+        - sh
+        - -c
+        - |
+          if [ "$(mongo --quiet --eval 'db.getMongo().getDBNames().indexOf("admin")')" == "-1" ]; then
+            mongosh < /docker-entrypoint-initdb.d/admin-user.js
+            mongosh < /docker-entrypoint-initdb.d/users.js
+            mongosh < /docker-entrypoint-initdb.d/posts.js
+          fi
+        volumeMounts:
+        - name: initdb-scripts
+          mountPath: /docker-entrypoint-initdb.d
+      containers:
+      - name: {{ include "finals-chart.name" . }}-mongo
+        image: "{{ .Values.mongo.image }}"
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "{{ .Values.mongo.environment.MONGO_INITDB_ROOT_USERNAME }}"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "{{ .Values.mongo.environment.MONGO_INITDB_ROOT_PASSWORD }}"
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+        - name: initdb-scripts
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: mongo-data
+        persistentVolumeClaim:
+          claimName: mongo-data
+      - name: initdb-scripts
+        configMap:
+          name: mongo-initdb-config
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi

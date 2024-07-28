@@ -153,7 +153,7 @@ pipeline {
                         sh """
                         export HELM_EXPERIMENTAL_OCI=1
                         echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u \$DOCKER_USERNAME --password-stdin
-                        helm push ${WORKSPACE}/Infrastructure/app-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts
+                        helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts
                         """
                     }
                 }

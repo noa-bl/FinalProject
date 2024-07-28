@@ -41,16 +41,15 @@ Add the Jenkins Helm chart repository to your Helm configuration:
 
   
 
-```sh
 
 helm repo  add  jenkins  https://charts.jenkins.io
 
   
 
+```sh
 helm repo  update
 
 ```
-
   
 
 ### Step 3: Install Jenkins Using Helm
@@ -150,5 +149,3 @@ note: you should install suggested plugins on first login
 
   
 
-
-```

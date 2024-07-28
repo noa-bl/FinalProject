@@ -1,11 +1,12 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "finals-chart.fullname" . }}-ingress-app
+  name: {{ include "finals-chart.fullname" . }}-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
-  ingressClassName: nginx
   rules:
-  - host: myuniqueapp.local  # Changed from myapp.local to myuniqueapp.local
+  - host:  myapp.local
     http:
       paths:
       - path: /

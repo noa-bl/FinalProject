@@ -1,5 +1,4 @@
 ## This file contains metadata that help helm manage the charts and deployments
-
 apiVersion: v2
 name: finals-chart
 description: A Helm chart for Kubernetes

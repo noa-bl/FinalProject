@@ -3,30 +3,29 @@ kind: Service
 metadata:
   name: myapp-svc
   labels:
-    app: {{ include "finals-chart.name" . }}-myapp
+    app: myapp
 spec:
   type: NodePort 
   ports:
-  - port: 5000
-    targetPort: 5000
-    protocol: TCP
-    name: http
-    nodePort: 30002
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: http
+      nodePort: 30003
   selector:
-    app: {{ include "finals-chart.name" . }}-myapp
+    app: myapp
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo
+  name: mongo-service
   labels:
-    app: {{ include "finals-chart.name" . }}-mongo
+    app: mongo
 spec:
+  type: ClusterIP
   ports:
-  - port: 27017
-    targetPort: 27017
-    protocol: TCP
-    name: mongo
+    - port: 27017
+      targetPort: 27017
   selector:
-    app: {{ include "finals-chart.name" . }}-mongo
-
+    app: mongo

@@ -8,7 +8,6 @@ from bson import ObjectId
 app = Flask(__name__, template_folder='templates')
 app.secret_key = secrets.token_hex(16)
 
-# Initialize MongoDB client outside the route to avoid reconnecting on each request
 client = MongoClient("mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin")
 db = client.Project
 Users = db.Users

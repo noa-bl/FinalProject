@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "finals-chart.fullname" . }}-myapp
+  name: my-release-finals-chart-myapp
   labels:
-    app: {{ include "finals-chart.name" . }}-myapp
+    app: my-release-myapp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "finals-chart.name" . }}-myapp
+      app: my-release-myapp
   template:
     metadata:
       labels:
-        app: {{ include "finals-chart.name" . }}-myapp
+        app: my-release-myapp
     spec:
       containers:
       - name: myapp
@@ -22,3 +22,32 @@ spec:
         env:
         - name: MONGODB_URI
           value: {{ .Values.myapp.environment.MONGODB_URI }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  labels:
+    app: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:latest
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          persistentVolumeClaim:
+            claimName: mongo-pvc

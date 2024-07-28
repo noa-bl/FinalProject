@@ -1,19 +1,39 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "finals-chart.fullname" . }}-ingress
+  name: myapp-ingress
   annotations:
     kubernetes.io/ingress.class: nginx
 spec:
   rules:
-  - host:  myapp.local
-    http:
-      paths:
-      - path: /
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: {{ include "finals-chart.fullname" . }}-myapp
-            port:
-              number: {{ .Values.service.port }}
+    - host: myappdemo.local
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: myapp
+                port:
+                  number: 5000
   tls: []
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mongo-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: mongo.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mongo-service
+                port:
+                  number: 27017

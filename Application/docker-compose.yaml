@@ -27,7 +27,9 @@ services:
       - mynetwork
 
   test_main:
-    image: noabl/flask-test:latest
+    build:
+      context: .
+      dockerfile: dockerfile.test
     environment:
       - MONGODB_URI=mongodb://myUserAdmin:changeme@mongo:27017/?authSource=admin
     depends_on:

@@ -126,23 +126,26 @@ pipeline {
                 }
             }
         }
-         stage('Push Helm Package to DockerHub') {
-            when {
-                branch 'master'
-            }
-             steps {
-            script {
-            withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                sh """
-                export HELM_EXPERIMENTAL_OCI=1
-                echo \$DOCKER_PASSWORD | helm registry login docker.io -u noabl --password-stdin
-                helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.2.tgz oci://docker.io/noabl
-                """
-                }
+              stage('Push Helm Chart to GitHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDENTIALS, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    script {
+                        sh '''
+                            git config --global user.email "noablfdev@gmail.com"
+                            git config --global user.name "Noa Bar Lev"
+                            git clone ${env.REPO_URL}
+                            cd your-repo
+                            git add /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.2.tgz
+                            git commit -m "Add new Helm chart"
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@${REPO_URL#https://}
+                        '''
+                    }
                 }
             }
         }
+    
     }
+
     post {
         failure {
             script {

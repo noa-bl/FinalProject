@@ -66,16 +66,7 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Image for test_main') {
-            steps {
-                script {
-                    docker.build("${TEST_IMAGE}:latest", "-f ${APPLICATION_DIR}/dockerfile.test ${APPLICATION_DIR}")
-                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
-                        docker.image("${TEST_IMAGE}:latest").push()
-                    }
-                }
-            }
-        }
+        
         stage('Run Tests with Docker Compose') {
             steps {
                 script {
@@ -149,7 +140,7 @@ pipeline {
                     }
                     withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
                         sh """
-                        helm push ${WORKSPACE}/Infrastructure/app/finals-chart-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts --password \$DOCKER_PAT
+                        helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.2.tgz oci://registry-1.docker.io/noabl/helm-charts
                         """
                     }
                 }

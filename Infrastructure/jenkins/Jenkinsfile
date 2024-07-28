@@ -127,6 +127,9 @@ pipeline {
             }
         }
               stage('Push Helm Chart to GitHub') {
+                when{
+                    branch 'master'
+                }
             steps {
                 withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDENTIALS, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
                     script {

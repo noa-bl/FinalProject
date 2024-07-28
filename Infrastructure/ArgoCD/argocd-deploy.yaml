@@ -9,7 +9,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-username/your-repo.git  
+    repoURL: https://github.com/noa-bl/FinalProject.git  
     targetRevision: HEAD  
     path: path-to-your-chart-directory 
   destination:

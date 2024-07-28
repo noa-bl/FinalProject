@@ -135,17 +135,21 @@ pipeline {
                 }
             }
         }
-        stage('Push Helm Package to DockerHub') {
+         stage('Push Helm Package to DockerHub') {
             when {
                 branch 'master'
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh """
                         export HELM_EXPERIMENTAL_OCI=1
                         echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u \$DOCKER_USERNAME --password-stdin
-                        helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts
+                        """
+                    }
+                    withCredentials([string(credentialsId: 'docker-pat', variable: 'DOCKER_PAT')]) {
+                        sh """
+                        helm push ${WORKSPACE}/Infrastructure/app/finals-chart-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts --password \$DOCKER_PAT
                         """
                     }
                 }

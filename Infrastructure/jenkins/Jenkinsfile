@@ -90,7 +90,7 @@ pipeline {
             steps {
                 script {
                     // Correct the path to your Helm chart directory
-                    sh "helm package ${WORKSPACE}/Infrastructure/app --version 0.1.1"
+                    sh "helm package ${WORKSPACE}/Infrastructure/app --version 0.1.2"
                 }
             }
         }
@@ -141,11 +141,10 @@ pipeline {
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    withCredentials([usernamePassword(credentialsId: 'docker-pat', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh """
                         export HELM_EXPERIMENTAL_OCI=1
                         echo \$DOCKER_PASSWORD | helm registry login registry-1.docker.io -u \$DOCKER_USERNAME --password-stdin
-                        ls -l /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.0.tgz
                         helm push /home/jenkins/agent/workspace/multibranch-cicd_master/finals-chart-0.1.0.tgz oci://registry-1.docker.io/noabl/helm-charts
                         """
                     }
